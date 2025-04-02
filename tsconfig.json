@@ -1,27 +1,68 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
+    "baseUrl": "./",
+    "declaration": false,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "resolveJsonModule": true,
+    "rootDir": "./",
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ES2022",
+    "typeRoots": [
+      "types",
+      "./node_modules/@types"
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "public",
+    "tests"
+  ],
+  "include": [
+    "types",
+    "next-env.d.ts",
+    "instrumentation-client.ts",
+    "sentry.edge.config.ts",
+    "sentry.server.config.ts",
+    "src",
+    "tailwind.config.ts",
+    "next.config.ts",
+    ".next/types/**/*.ts"
+  ]
 }

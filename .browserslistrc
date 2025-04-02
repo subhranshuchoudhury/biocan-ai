@@ -1,0 +1,14 @@
+# Browsers that we support
+
+[development]
+last 1 version
+last 2 node major versions
+not dead
+
+[production]
+chrome >= 94
+firefox >= 93
+safari >= 15.4
+edge >= 94
+last 2 node major versions
+not dead

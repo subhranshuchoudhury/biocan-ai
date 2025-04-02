@@ -1,8 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
+  --background: #f2efe7;
   --foreground: #171717;
+  --primary-color: #ebe3e3;
 }
 
 @theme inline {
@@ -10,11 +11,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --primary: var(--primary-color);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #f2efe7;
     --foreground: #ededed;
   }
 }
@@ -23,4 +25,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.pattern-bg {
+  background-image:
+    repeating-radial-gradient(
+      circle at center center,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 3px,
+      transparent 3px,
+      transparent 5px,
+      rgba(0, 0, 0, 0.03) 5px,
+      rgba(0, 0, 0, 0.03) 7px
+    ),
+    repeating-radial-gradient(
+      circle at center center,
+      rgb(255, 255, 255) 0px,
+      rgb(255, 255, 255) 9px,
+      rgb(255, 255, 255) 9px,
+      rgb(255, 255, 255) 21px,
+      rgb(255, 255, 255) 21px,
+      rgb(255, 255, 255) 31px,
+      rgb(255, 255, 255) 31px,
+      rgb(255, 255, 255) 40px
+    );
+  background-size: 20px 20px;
 }

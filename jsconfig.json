@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "module": "CommonJS",
+    "strict": true,
+    "target": "ESNext"
+  },
+  "exclude": [".next", "public", "node_modules"],
+  "include": ["src", "**/*.js"]
+}

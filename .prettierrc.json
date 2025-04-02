@@ -1,0 +1,26 @@
+{
+  "bracketSameLine": true,
+  "jsonRecursiveSort": true,
+  "jsonSortOrder": "{\"*\": \"lexical\"}",
+  "jsxSingleQuote": false,
+  "overrides": [
+    {
+      "files": "*.svg",
+      "options": {
+        "parser": "html"
+      }
+    }
+  ],
+  "plugins": [
+    "prettier-plugin-sort-json",
+    "prettier-plugin-packagejson",
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-multiline-arrays",
+    "prettier-plugin-tailwindcss"
+  ],
+  "printWidth": 120,
+  "singleAttributePerLine": true,
+  "singleQuote": true,
+  "trailingComma": "none"
+}
