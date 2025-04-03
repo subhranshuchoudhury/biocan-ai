@@ -9,6 +9,11 @@ export function middleware(request: NextRequest) {
 
     const isPublicPath = publicPaths.includes(currentPath)
 
+    if (currentPath === '/') {
+        const loginUrl = new URL('/login', request.url)
+        return NextResponse.redirect(loginUrl)
+    }
+
     if (!token && !isPublicPath) {
         const loginUrl = new URL('/login', request.url)
         return NextResponse.redirect(loginUrl)
@@ -25,5 +30,6 @@ export function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/login',
+        '/'
     ]
 }

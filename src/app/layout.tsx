@@ -1,9 +1,8 @@
-import { AuthProvider } from '@/providers';
+import { AuthProvider, ToastProvider } from '@/providers';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { twJoin } from 'tailwind-merge';
 import './globals.css';
-
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin']
@@ -29,7 +28,11 @@ export default function RootLayout({
       <body
         suppressHydrationWarning
         className={twJoin(geistSans.variable, geistMono.variable, 'antialiased')}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );
