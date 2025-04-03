@@ -6,6 +6,15 @@ import BiocanLogo from 'public/assets/biocan-logo.svg';
 import { FcGoogle } from 'react-icons/fc';
 
 const SignInPage = () => {
+
+  const login = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.log("Signin error", error)
+    }
+  }
+
   return (
     <div className="flex h-screen min-h-dvh w-full flex-col items-center justify-between gap-4 bg-[linear-gradient(180deg,#13234D_0%,#3A3DD4_43.5%,#142145_100%)] px-4 py-28 text-center text-[#EBE3E3]">
       <BiocanLogo />
@@ -18,10 +27,8 @@ const SignInPage = () => {
       </div>
       <div className="flex flex-col items-center justify-center gap-4">
         <button
-          onClick={() => {
-            signInWithPopup(auth, provider);
-          }}
-          className="flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black">
+          onClick={login}
+          className="flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black hover:cursor-pointer">
           <FcGoogle size={28} />
           <span>Continue with Google</span>
         </button>
