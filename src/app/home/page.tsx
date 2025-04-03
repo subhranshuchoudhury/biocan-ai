@@ -113,11 +113,11 @@ const Home = () => {
 
   if (hasSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-[#F2EFE7]">
         <Navbar />
         <div className="flex justify-center items-center mt-20 px-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4">{user?.displayName || "User"}'s Assessment Report</h2>
+            <h2 className="text-2xl font-bold mb-4 text-black">{user?.displayName || "User"}'s Assessment Report</h2>
             <div className="space-y-4">
               <a href="#" className="block text-blue-600 hover:underline">View my Personality Report</a>
               <a href="#" className="block text-blue-600 hover:underline">Proceed to Suggested Jobs</a>
@@ -202,7 +202,7 @@ const Home = () => {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 placeholder="Type your message"
-                className="flex-1 p-2 border-0 rounded-full focus:outline-none focus:ring-0 focus:ring-blue-300 text-gray-800 bg-white" // Added text color and background
+                className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none focus:ring-0 focus:ring-blue-300 text-gray-800 bg-white" // Added text color and background
               />
               <button
                 type="submit"
@@ -213,13 +213,10 @@ const Home = () => {
             </div>
           </form>
         ) : (
-          <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md flex justify-between">
-            <button className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
-              Preview
-            </button>
+          <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md flex justify-end">
             <button
               onClick={handleFinalSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hover:cursor-pointer transition-colors"
             >
               Submit
             </button>

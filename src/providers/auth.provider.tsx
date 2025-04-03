@@ -4,13 +4,12 @@ import { auth, db } from '@/configs';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { createContext, useContext, useEffect, PropsWithChildren } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useRouter } from 'next/navigation';
 // 1. Create a context for auth
 const AuthContext = createContext<{ user: any; loading: boolean } | undefined>(undefined);
 
 // 2. Define the AuthProvider component
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const router = useRouter();
+
   const [user, loading] = useAuthState(auth);
   console.log('User', user, loading);
 
@@ -29,7 +28,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           },
           { merge: true }
         );
-        router.replace("/home")
       })()
     }
   }, [user]);
