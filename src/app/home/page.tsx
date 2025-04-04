@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Formik, Form, Field, FieldArray } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import { reach } from 'yup';
 import { IoSend } from 'react-icons/io5';
 import { useAuth } from '@/providers';
 import Navbar from '@/components/navbar';
@@ -46,7 +47,7 @@ const initialValues: FormValues = {
 
 const validationSchema = Yup.object({
   basicInfo: Yup.object({
-    name: Yup.string().required('Required'),
+    name: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Name should only contain letters and spaces').required('Required'),
     gender: Yup.string().required('Required'),
     address: Yup.string().required('Required'),
     pincode: Yup.string().matches(/^\d{6}$/, 'Must be 6 digits').required('Required'),
@@ -56,7 +57,7 @@ const validationSchema = Yup.object({
   }),
   education: Yup.object({
     highSchoolStream: Yup.string().required('Required'),
-    highSchoolPercentage: Yup.number().min(0).max(100).required('Required'),
+    highSchoolPercentage: Yup.number().min(0, 'Must be at least 0').max(100, 'Must be at most 100').required('Required'),
     academicRecords: Yup.array().of(
       Yup.object({
         college: Yup.string().required('Required'),
@@ -101,7 +102,12 @@ const Home = () => {
   useEffect(() => {
     const savedData = localStorage.getItem('formData');
     if (savedData) {
-      setFormData(JSON.parse(savedData));
+      const parsedData = JSON.parse(savedData);
+      // Ensure academicRecords is always an array
+      if (!Array.isArray(parsedData.education.academicRecords)) {
+        parsedData.education.academicRecords = [{ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }];
+      }
+      setFormData(parsedData);
     }
     setChatMessages([{ text: `Hello ${user?.displayName || 'User'}, let's start with some basic information!`, isBot: true }]);
     setTimeout(() => setChatMessages(prev => [...prev, questions[0]]), 1000);
@@ -113,15 +119,31 @@ const Home = () => {
     }
   }, [chatMessages]);
 
-  const handleResponse = (values: FormValues, setFieldValue: any, response: string) => {
+  const handleResponse = async (values: FormValues, setFieldValue: any, response: string) => {
     if (!response.trim()) return;
 
     const currentQuestion = chatMessages[chatMessages.length - 1];
-    const fieldParts = currentQuestion.field!.split('.');
+    const fieldPath = currentQuestion.field!;
+
+    // Validate the input
+    try {
+      const schemaPart = reach(validationSchema, fieldPath) as Yup.Schema<any>;
+      await schemaPart.validate(response);
+    } catch (error) {
+      setChatMessages(prev => [...prev, { text: `Sorry, please enter valid details (${(error as Yup.ValidationError).message})`, isBot: true }]);
+      setTimeout(() => setChatMessages(prev => [...prev, currentQuestion]), 1000);
+      setUserInput('');
+      return;
+    }
+
+    // Update form data
+    const fieldParts = fieldPath.split('.');
     if (currentQuestion.isArrayField && fieldParts.length > 2) {
       const index = parseInt(fieldParts[2], 10);
       const fieldName = fieldParts[3];
-      const updatedRecords = values.education.academicRecords.map((record, i) =>
+      // Ensure academicRecords is an array before mapping
+      const academicRecords = Array.isArray(values.education.academicRecords) ? values.education.academicRecords : [{ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }];
+      const updatedRecords = academicRecords.map((record, i) =>
         i === index ? { ...record, [fieldName]: response } : record
       );
       setFieldValue('education.academicRecords', updatedRecords);
@@ -133,7 +155,7 @@ const Home = () => {
       setFieldValue('education.internships', updatedInternships);
       setFormData(prev => ({ ...prev, education: { ...prev.education, internships: updatedInternships } }));
     } else {
-      setFieldValue(currentQuestion.field!, response);
+      setFieldValue(fieldPath, response);
       setFormData(prev => ({
         ...prev,
         [fieldParts[0]]: { ...prev[fieldParts[0] as keyof FormValues], [fieldParts[1]]: response }
@@ -208,36 +230,34 @@ const Home = () => {
                           </div>
                         )}
                         {(message.field === "education.academicRecords.0.yearOfCompletion" || (message.isArrayField && message.arrayFieldName === "education.academicRecords" && message.field?.endsWith('.college'))) && (
-                          <FieldArray name="education.academicRecords">
-                            {({ push }) => (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  push({ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' });
-                                  setChatMessages(prev => [...prev, { text: "Tell me about another college education (College name)", isBot: true, field: `education.academicRecords.${values.education.academicRecords.length}.college`, inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" }]);
-                                }}
-                                className="text-blue-500 mt-2"
-                              >
-                                Add Another Academic Record
-                              </button>
-                            )}
-                          </FieldArray>
+                          <div className="mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newIndex = values.education.academicRecords.length;
+                                setFieldValue('education.academicRecords', [...values.education.academicRecords, { college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }]);
+                                setChatMessages(prev => [...prev, { text: "Tell me about another college education (College name)", isBot: true, field: `education.academicRecords.${newIndex}.college`, inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" }]);
+                              }}
+                              className="text-blue-500"
+                            >
+                              Add Another Academic Record
+                            </button>
+                          </div>
                         )}
                         {message.field?.startsWith("education.internships") && (
-                          <FieldArray name="education.internships">
-                            {({ push }) => (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  push('');
-                                  setChatMessages(prev => [...prev, { text: "Tell me about another internship", isBot: true, field: `education.internships.${values.education.internships.length}`, inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
-                                }}
-                                className="text-blue-500 mt-2"
-                              >
-                                Add Another Internship
-                              </button>
-                            )}
-                          </FieldArray>
+                          <div className="mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newIndex = values.education.internships.length;
+                                setFieldValue('education.internships', [...values.education.internships, '']);
+                                setChatMessages(prev => [...prev, { text: "Tell me about another internship", isBot: true, field: `education.internships.${newIndex}`, inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
+                              }}
+                              className="text-blue-500"
+                            >
+                              Add Another Internship
+                            </button>
+                          </div>
                         )}
                       </Form>
                     )}
@@ -261,7 +281,7 @@ const Home = () => {
                   className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleResponse(values, () => { }, userInput)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleResponse(values, () => { }, userInput)}
                   disabled={chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
                 />
                 <button
