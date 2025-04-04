@@ -116,7 +116,7 @@ const Home = () => {
   const handleResponse = (values: FormValues, setFieldValue: any, response: string) => {
     if (!response.trim()) return;
 
-    const currentQuestion = questions[currentStep];
+    const currentQuestion = chatMessages[chatMessages.length - 1];
     const fieldParts = currentQuestion.field!.split('.');
     if (currentQuestion.isArrayField && fieldParts.length > 2) {
       const index = parseInt(fieldParts[2], 10);
@@ -125,17 +125,23 @@ const Home = () => {
         i === index ? { ...record, [fieldName]: response } : record
       );
       setFieldValue('education.academicRecords', updatedRecords);
+      setFormData(prev => ({ ...prev, education: { ...prev.education, academicRecords: updatedRecords } }));
     } else if (fieldParts[0] === 'education' && fieldParts[1].startsWith('internships')) {
       const index = parseInt(fieldParts[2], 10);
       const updatedInternships = [...values.education.internships];
       updatedInternships[index] = response;
       setFieldValue('education.internships', updatedInternships);
+      setFormData(prev => ({ ...prev, education: { ...prev.education, internships: updatedInternships } }));
     } else {
       setFieldValue(currentQuestion.field!, response);
+      setFormData(prev => ({
+        ...prev,
+        [fieldParts[0]]: { ...prev[fieldParts[0] as keyof FormValues], [fieldParts[1]]: response }
+      }));
     }
 
     setChatMessages(prev => [...prev, { text: response, isBot: false }]);
-    localStorage.setItem('formData', JSON.stringify(values));
+    localStorage.setItem('formData', JSON.stringify(formData));
 
     const nextStep = currentStep + 1;
     if (nextStep < questions.length) {
@@ -154,11 +160,7 @@ const Home = () => {
       <Navbar />
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
         <div
-          className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23e0e0e0' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '20px 20px',
-          }}
+          className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]"
           ref={chatContainerRef}
         >
           {chatMessages.map((message, index) => (
@@ -205,23 +207,6 @@ const Home = () => {
                             ))}
                           </div>
                         )}
-                        {(message.inputType === 'text' || message.inputType === 'textarea') && (
-                          <div className="flex overflow-x-auto gap-2">
-                            <div className="min-w-[300px] bg-white p-3 rounded-lg">
-                              <Field
-                                name={message.field}
-                                placeholder="Type your response"
-                                className="w-full border-0 focus:outline-none text-black bg-transparent"
-                                value={userInput}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}
-                                onKeyPress={(e: React.KeyboardEvent) => e.key === 'Enter' && handleResponse(values, setFieldValue, userInput)}
-                              />
-                            </div>
-                            <button type="submit" className="p-2 rounded-full hover:cursor-pointer transition-colors">
-                              <IoSend color='#155dfc' size={20} />
-                            </button>
-                          </div>
-                        )}
                         {(message.field === "education.academicRecords.0.yearOfCompletion" || (message.isArrayField && message.arrayFieldName === "education.academicRecords" && message.field?.endsWith('.college'))) && (
                           <FieldArray name="education.academicRecords">
                             {({ push }) => (
@@ -265,7 +250,7 @@ const Home = () => {
         <Formik
           initialValues={formData}
           validationSchema={validationSchema}
-          onSubmit={(values) => handleResponse(values, () => { }, userInput)}
+          onSubmit={(values, { setFieldValue }) => handleResponse(values, setFieldValue, userInput)}
           enableReinitialize
         >
           {({ values }) => (
