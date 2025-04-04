@@ -1,71 +1,110 @@
-// pages/index.tsx
 'use client';
 
-import { useState, useEffect, FormEvent, useRef } from 'react';
-import Select, { SingleValue } from 'react-select';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useState, useEffect, useRef } from 'react';
+import { Formik, Form, Field, FieldArray } from 'formik';
+import * as Yup from 'yup';
 import { IoSend } from 'react-icons/io5';
 import { useAuth } from '@/providers';
-import { db } from '@/configs';
 import Navbar from '@/components/navbar';
 
 // Types
+interface FormValues {
+  basicInfo: { [key: string]: string };
+  education: {
+    highSchoolStream: string;
+    highSchoolPercentage: string;
+    academicRecords: Array<{ college: string; degree: string; fieldOfStudy: string; yearOfCompletion: string }>;
+    extraCourses: string[];
+    extracurriculars: string[];
+    hasInternships: string;
+    internships: string[];
+  };
+}
+
 interface ChatMessage {
   text: string;
   isBot: boolean;
-  cards?: Card[];
+  field?: string;
+  options?: string[];
+  inputType?: 'text' | 'select' | 'radio' | 'textarea';
+  isArrayField?: boolean;
+  arrayFieldName?: string;
 }
 
-interface Card {
-  id: number;
-  title: string;
-  description: string;
-}
+const initialValues: FormValues = {
+  basicInfo: { name: '', gender: '', address: '', pincode: '', mobile: '', email: '', status: '' },
+  education: {
+    highSchoolStream: '',
+    highSchoolPercentage: '',
+    academicRecords: [{ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }],
+    extraCourses: [],
+    extracurriculars: [],
+    hasInternships: '',
+    internships: []
+  }
+};
 
-interface User {
-  uid: string;
-  displayName?: string;
-}
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
+const validationSchema = Yup.object({
+  basicInfo: Yup.object({
+    name: Yup.string().required('Required'),
+    gender: Yup.string().required('Required'),
+    address: Yup.string().required('Required'),
+    pincode: Yup.string().matches(/^\d{6}$/, 'Must be 6 digits').required('Required'),
+    mobile: Yup.string().matches(/^\d{10}$/, 'Must be 10 digits').required('Required'),
+    email: Yup.string().email('Invalid email').required('Required'),
+    status: Yup.string().required('Required')
+  }),
+  education: Yup.object({
+    highSchoolStream: Yup.string().required('Required'),
+    highSchoolPercentage: Yup.number().min(0).max(100).required('Required'),
+    academicRecords: Yup.array().of(
+      Yup.object({
+        college: Yup.string().required('Required'),
+        degree: Yup.string().required('Required'),
+        fieldOfStudy: Yup.string().required('Required'),
+        yearOfCompletion: Yup.string().required('Required')
+      })
+    ),
+    hasInternships: Yup.string().required('Required'),
+    internships: Yup.array().when('hasInternships', {
+      is: 'yes',
+      then: () => Yup.array().min(1, 'Add at least one internship').required()
+    })
+  })
+});
 
 const Home = () => {
   const { user } = useAuth();
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [userInput, setUserInput] = useState<string>('');
-  const [chatCompleted, setChatCompleted] = useState<boolean>(false);
-  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [formData, setFormData] = useState<FormValues>(initialValues);
+  const [userInput, setUserInput] = useState('');
 
-  const predefinedQuestions: string[] = [
-    "Hello! How would you describe your personality?",
-    "What are your strongest skills?",
-    "What type of work environment do you prefer?",
-    "What are your career goals?"
-  ];
-
-  const demoCards: Card[] = [
-    { id: 1, title: "Team Player", description: "Works well in groups" },
-    { id: 2, title: "Creative", description: "Innovative thinker" },
-    { id: 3, title: "Analytical", description: "Problem solver" },
+  const questions: ChatMessage[] = [
+    { text: "What's your name?", isBot: true, field: "basicInfo.name", inputType: "text" },
+    { text: "What's your gender?", isBot: true, field: "basicInfo.gender", inputType: "select", options: ["Male", "Female", "Other"] },
+    { text: "What's your address?", isBot: true, field: "basicInfo.address", inputType: "text" },
+    { text: "What's your pincode?", isBot: true, field: "basicInfo.pincode", inputType: "text" },
+    { text: "What's your mobile number?", isBot: true, field: "basicInfo.mobile", inputType: "text" },
+    { text: "What's your email?", isBot: true, field: "basicInfo.email", inputType: "text" },
+    { text: "What defines you best?", isBot: true, field: "basicInfo.status", inputType: "radio", options: ["Currently Studying", "Recently Graduated", "Working Professional"] },
+    { text: "What was your high school stream?", isBot: true, field: "education.highSchoolStream", inputType: "select", options: ["Science with Biology", "Science without Biology", "Commerce", "Arts"] },
+    { text: "What's your high school percentage?", isBot: true, field: "education.highSchoolPercentage", inputType: "text" },
+    { text: "Tell me about your college education (College name)", isBot: true, field: "education.academicRecords.0.college", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" },
+    { text: "What's your degree?", isBot: true, field: "education.academicRecords.0.degree", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" },
+    { text: "What's your field of study?", isBot: true, field: "education.academicRecords.0.fieldOfStudy", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" },
+    { text: "Which year did you complete it?", isBot: true, field: "education.academicRecords.0.yearOfCompletion", inputType: "select", options: Array.from({ length: 21 }, (_, i) => (2010 + i).toString()) },
+    { text: "Have you done any internships/part-time jobs?", isBot: true, field: "education.hasInternships", inputType: "radio", options: ["Yes", "No"] }
   ];
 
   useEffect(() => {
-    const checkPreviousChat = async () => {
-      if (user) {
-        const docRef = doc(db, "chats", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setHasSubmitted(true);
-        } else {
-          setChatMessages([{ text: `Hello ${user.displayName || 'User'}, How can I help you today?`, isBot: true }]);
-        }
-      }
-    };
-    checkPreviousChat();
+    const savedData = localStorage.getItem('formData');
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+    setChatMessages([{ text: `Hello ${user?.displayName || 'User'}, let's start with some basic information!`, isBot: true }]);
+    setTimeout(() => setChatMessages(prev => [...prev, questions[0]]), 1000);
   }, [user]);
 
   useEffect(() => {
@@ -74,94 +113,46 @@ const Home = () => {
     }
   }, [chatMessages]);
 
-  const handleChatSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!userInput.trim()) return;
+  const handleResponse = (values: FormValues, setFieldValue: any, response: string) => {
+    if (!response.trim()) return;
 
-    setChatMessages(prev => [...prev, { text: userInput, isBot: false }]);
-
-    const currentIndex = Math.floor(chatMessages.length / 2);
-    if (currentIndex === 2) {
-      setChatMessages(prev => [...prev, {
-        text: "Here are some traits you might identify with:",
-        isBot: true,
-        cards: demoCards
-      }]);
-    } else if (currentIndex < predefinedQuestions.length) {
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, {
-          text: predefinedQuestions[currentIndex],
-          isBot: true
-        }]);
-      }, 1000);
+    const currentQuestion = questions[currentStep];
+    const fieldParts = currentQuestion.field!.split('.');
+    if (currentQuestion.isArrayField && fieldParts.length > 2) {
+      const index = parseInt(fieldParts[2], 10);
+      const fieldName = fieldParts[3];
+      const updatedRecords = values.education.academicRecords.map((record, i) =>
+        i === index ? { ...record, [fieldName]: response } : record
+      );
+      setFieldValue('education.academicRecords', updatedRecords);
+    } else if (fieldParts[0] === 'education' && fieldParts[1].startsWith('internships')) {
+      const index = parseInt(fieldParts[2], 10);
+      const updatedInternships = [...values.education.internships];
+      updatedInternships[index] = response;
+      setFieldValue('education.internships', updatedInternships);
     } else {
-      setChatCompleted(true);
+      setFieldValue(currentQuestion.field!, response);
+    }
+
+    setChatMessages(prev => [...prev, { text: response, isBot: false }]);
+    localStorage.setItem('formData', JSON.stringify(values));
+
+    const nextStep = currentStep + 1;
+    if (nextStep < questions.length) {
+      setCurrentStep(nextStep);
+      setTimeout(() => setChatMessages(prev => [...prev, questions[nextStep]]), 1000);
+    } else if (values.education.hasInternships === 'yes' && values.education.internships.length === 0) {
+      setChatMessages(prev => [...prev, { text: "Please tell me about your internship details", isBot: true, field: "education.internships.0", inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
+    } else {
+      setChatMessages(prev => [...prev, { text: "Great! All done. Ready to submit?", isBot: true }]);
     }
     setUserInput('');
   };
-
-  const handleFinalSubmit = async () => {
-    if (user) {
-      // await setDoc(doc(db, "chats", user.uid), {
-      //   messages: chatMessages,
-      //   timestamp: new Date().toISOString(),
-      //   userId: user.uid
-      // });
-      setHasSubmitted(true);
-    }
-  };
-
-  if (hasSubmitted) {
-    return (
-      <div className="min-h-screen bg-[#F2EFE7]">
-        <Navbar />
-        <div className="flex justify-center items-center mt-20 px-4">
-          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4 text-black">{user?.displayName || "User"}'s Assessment Report</h2>
-            <div className="space-y-4">
-              <a href="#" className="block text-blue-600 hover:underline">View my Personality Report</a>
-              <a href="#" className="block text-blue-600 hover:underline">Proceed to Suggested Jobs</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#F2EFE7] flex flex-col">
       <Navbar />
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
-        <div className="my-4 flex justify-center">
-          <Select
-            instanceId={1}
-            options={[{ value: 'assessment', label: 'Assessments' } as SelectOption]}
-            defaultValue={{ value: 'assessment', label: 'Assessments' } as SelectOption}
-            className="w-full max-w-xs"
-            // isDisabled={true}
-            onChange={(option: SingleValue<SelectOption>) => { }}
-            styles={{
-              control: (base) => ({
-                ...base,
-                backgroundColor: '#D9D9D9',
-                border: 'none',
-                boxShadow: 'none',
-                fontSize: '16px',
-                padding: '2px 0',
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: '#000',
-                fontWeight: '500',
-              }),
-              dropdownIndicator: (base) => ({
-                ...base,
-                color: '#000',
-              }),
-            }}
-          />
-        </div>
-
         <div
           className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2"
           style={{
@@ -174,59 +165,145 @@ const Home = () => {
             <div key={index} className={`mb-4 ${message.isBot ? 'text-left' : 'text-right'}`}>
               <div className={`inline-block p-3 rounded-lg ${message.isBot
                 ? 'bg-[#2973B2] text-white rounded-bl-none'
-                : 'bg-[#48A6A7] text-white rounded-br-none'
+                : 'bg-white text-black rounded-br-none'
                 } max-w-[80%] sm:max-w-[60%]`}>
                 {message.text}
               </div>
-              {message.cards && (
-                <div className="flex overflow-x-auto mt-2 gap-2">
-                  {message.cards.map((card: Card) => (
-                    <div key={card.id} className="min-w-[200px] bg-white p-3 rounded-lg">
-                      <h3 className="font-bold text-black">{card.title}</h3>
-                      <p className='text-black'>{card.description}</p>
-                    </div>
-                  ))}
+              {message.isBot && message.field && index === chatMessages.length - 1 && (
+                <div className="mt-2">
+                  <Formik
+                    initialValues={formData}
+                    validationSchema={validationSchema}
+                    onSubmit={(values, { setFieldValue }) => handleResponse(values, setFieldValue, userInput)}
+                    enableReinitialize
+                  >
+                    {({ values, setFieldValue }) => (
+                      <Form>
+                        {message.inputType === 'select' && (
+                          <div className="flex overflow-x-auto gap-2">
+                            {message.options?.map((option, idx) => (
+                              <div
+                                key={idx}
+                                className="min-w-[150px] bg-white p-3 rounded-lg cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleResponse(values, setFieldValue, option)}
+                              >
+                                <p className="text-black">{option}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {message.inputType === 'radio' && (
+                          <div className="flex overflow-x-auto gap-2">
+                            {message.options?.map((option, idx) => (
+                              <div
+                                key={idx}
+                                className="min-w-[150px] bg-white p-3 rounded-lg cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleResponse(values, setFieldValue, option)}
+                              >
+                                <p className="text-black">{option}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {(message.inputType === 'text' || message.inputType === 'textarea') && (
+                          <div className="flex overflow-x-auto gap-2">
+                            <div className="min-w-[300px] bg-white p-3 rounded-lg">
+                              <Field
+                                name={message.field}
+                                placeholder="Type your response"
+                                className="w-full border-0 focus:outline-none text-black bg-transparent"
+                                value={userInput}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}
+                                onKeyPress={(e: React.KeyboardEvent) => e.key === 'Enter' && handleResponse(values, setFieldValue, userInput)}
+                              />
+                            </div>
+                            <button type="submit" className="p-2 rounded-full hover:cursor-pointer transition-colors">
+                              <IoSend color='#155dfc' size={20} />
+                            </button>
+                          </div>
+                        )}
+                        {(message.field === "education.academicRecords.0.yearOfCompletion" || (message.isArrayField && message.arrayFieldName === "education.academicRecords" && message.field?.endsWith('.college'))) && (
+                          <FieldArray name="education.academicRecords">
+                            {({ push }) => (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  push({ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' });
+                                  setChatMessages(prev => [...prev, { text: "Tell me about another college education (College name)", isBot: true, field: `education.academicRecords.${values.education.academicRecords.length}.college`, inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords" }]);
+                                }}
+                                className="text-blue-500 mt-2"
+                              >
+                                Add Another Academic Record
+                              </button>
+                            )}
+                          </FieldArray>
+                        )}
+                        {message.field?.startsWith("education.internships") && (
+                          <FieldArray name="education.internships">
+                            {({ push }) => (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  push('');
+                                  setChatMessages(prev => [...prev, { text: "Tell me about another internship", isBot: true, field: `education.internships.${values.education.internships.length}`, inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
+                                }}
+                                className="text-blue-500 mt-2"
+                              >
+                                Add Another Internship
+                              </button>
+                            )}
+                          </FieldArray>
+                        )}
+                      </Form>
+                    )}
+                  </Formik>
                 </div>
               )}
             </div>
           ))}
         </div>
-
-        {!chatCompleted ? (
-          <form onSubmit={handleChatSubmit} className="sticky bottom-0 bg-transparent flex items-center gap-2">
-            <div
-              className="flex w-full justify-between shadow-md border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-800 bg-white" // Added text color and background
-            >
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                placeholder="Type your message"
-                className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none focus:ring-0 focus:ring-blue-300 text-gray-800 bg-white" // Added text color and background
-              />
-              <button
-                type="submit"
-                className="text-white p-2 rounded-full hover:cursor-pointer transition-colors"
-              >
-                <IoSend color='#155dfc' size={20} />
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md flex justify-end">
+        <Formik
+          initialValues={formData}
+          validationSchema={validationSchema}
+          onSubmit={(values) => handleResponse(values, () => { }, userInput)}
+          enableReinitialize
+        >
+          {({ values }) => (
+            <Form className="sticky bottom-0 bg-transparent flex items-center gap-2">
+              <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+                <input
+                  placeholder="Type your response"
+                  className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleResponse(values, () => { }, userInput)}
+                  disabled={chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
+                />
+                <button
+                  type="submit"
+                  className="p-2 rounded-full hover:cursor-pointer transition-colors"
+                  disabled={chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
+                >
+                  <IoSend color='#155dfc' size={20} />
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+        {chatMessages[chatMessages.length - 1]?.text === "Great! All done. Ready to submit?" && (
+          <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md flex justify-end w-full mt-2">
             <button
-              onClick={handleFinalSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hover:cursor-pointer transition-colors"
+              type="button"
+              onClick={() => console.log('Final submission:', formData)}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Submit
             </button>
           </div>
         )}
       </div>
-    </div >
+    </div>
   );
 };
-
-
 
 export default Home;
