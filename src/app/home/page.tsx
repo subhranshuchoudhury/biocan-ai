@@ -285,6 +285,7 @@ const Home = () => {
                   disabled={chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
                 />
                 <button
+                  onClick={() => handleResponse(values, () => { }, userInput)}
                   type="submit"
                   className="p-2 rounded-full hover:cursor-pointer transition-colors"
                   disabled={chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
