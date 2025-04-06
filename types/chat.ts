@@ -12,3 +12,8 @@ export interface Section {
     questions: Question[];
     showOnlyWhen?: { [key: string]: string };
 }
+
+export interface DataEntry {
+    answer: any;
+    question: string;
+}

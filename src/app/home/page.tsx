@@ -1,11 +1,12 @@
 'use client';
 
 import Navbar from "@/components/navbar";
+import { enrichDataWithQuestions } from "@/helper/enrich";
 import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
 import { IoSend } from "react-icons/io5";
 import Select from 'react-select';
-import { Question, Section } from "types/chat";
+import { DataEntry, Question, Section } from "types/chat";
 
 
 
@@ -237,7 +238,10 @@ export default function ChatPage() {
       setCheckboxSelections([]);
 
       if (currentQuestionIndex < allQuestions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setTimeout(() => {
+          setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }, 1000); // 1-second delay
+
       } else {
         alert('All questions completed. Submitting...');
         console.log(responses);
@@ -297,6 +301,17 @@ export default function ChatPage() {
     //   inputRef.current.focus();
     // }
   }, [responses, currentQuestionIndex, currentFieldIndex, inArrayInput, showAddMorePrompt]);
+
+  useEffect(() => {
+    try {
+
+      const result = enrichDataWithQuestions(responses, sections);
+      console.log("Result of Response: ", result);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [responses])
+
 
   useEffect(() => {
     if (chatMessages.length === 0 && currentQuestionIndex >= 0) {
@@ -574,17 +589,17 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2EFE7] flex flex-col">
+    <div className="min-h-screen bg-[#fff] flex flex-col">
       <div className="sticky top-0">
         <Navbar />
       </div>
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
-        <div className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
+        <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
           {chatMessages.map((message, idx) => (
             <div key={idx}>
               {message.type === "question" && (
                 <div className="mb-4 text-left">
-                  <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                  <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
 
 
                   </div>
@@ -592,7 +607,7 @@ export default function ChatPage() {
               )}
               {message.type === "answer" && (
                 <div className="mb-4 text-right">
-                  <div className="inline-block p-3 rounded-lg bg-white text-black rounded-br-none max-w-[80%] sm:max-w-[60%]">
+                  <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-br-none max-w-[80%] sm:max-w-[60%]">
                     {message.content}
                   </div>
                 </div>
@@ -618,14 +633,14 @@ export default function ChatPage() {
           {!inArrayInput && currentQuestionIndex < allQuestions.length &&
             !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
               <div className="mb-4 text-left">
-                <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
                 </div>
               </div>
             )}
 
           {showAddMorePrompt && (
             <div className="mb-4 text-left">
-              <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+              <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
                 {renderCurrentQuestion()}
               </div>
             </div>
