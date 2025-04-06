@@ -117,6 +117,9 @@ export default function ChatPage() {
             };
             setCurrentArrayEntry(updatedEntry);
 
+            alert("Next")
+
+
             setChatMessages(prev => [
                 ...prev,
                 {
@@ -132,6 +135,7 @@ export default function ChatPage() {
                     sectionId: currentSection!.id
                 }
             ]);
+
 
             setTextInput('');
             setTextareaInput('');
@@ -200,14 +204,28 @@ export default function ChatPage() {
                 return;
             }
 
-            setChatMessages(prev => [
-                ...prev,
-                { type: "question", content: currentQuestion!.question },
-                {
-                    type: "answer",
-                    content: Array.isArray(value) ? value.join(', ') : value
-                }
-            ]);
+            // ! This is for preventing displaying the initial message two times.
+
+            if (chatMessages.length === 1) {
+                setChatMessages([
+                    { type: "question", content: currentQuestion!.question },
+                    {
+                        type: "answer",
+                        content: Array.isArray(value) ? value.join(', ') : value
+                    }
+                ]);
+            } else {
+                setChatMessages(prev => [
+                    ...prev,
+                    { type: "question", content: currentQuestion!.question },
+                    {
+                        type: "answer",
+                        content: Array.isArray(value) ? value.join(', ') : value
+                    }
+                ]);
+            }
+
+
 
             setResponses(prev => ({
                 ...prev,
@@ -419,7 +437,7 @@ export default function ChatPage() {
                                 setTextInput(e.target.value);
                                 handleInputChange(e.target.value);
                             }}
-                            onKeyPress={handleTextKeyPress}
+                            onKeyDown={handleTextKeyPress}
                         />
                         <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
                             <IoSend color="#155dfc" size={20} />
@@ -546,8 +564,9 @@ export default function ChatPage() {
                         <div key={idx}>
                             {message.type === "question" && (
                                 <div className="mb-4 text-left">
-                                    <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                        {message.content}
+                                    <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
+
                                     </div>
                                 </div>
                             )}
