@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/navbar";
 import { enrichDataWithQuestions } from "@/helper/enrich";
+import { getMBTIScore } from "@/helper/mbti-score";
 import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
 import { IoSend } from "react-icons/io5";
@@ -145,7 +146,7 @@ export default function ChatPage() {
         setTimeout(() => {
 
           setCurrentFieldIndex(currentFieldIndex + 1);
-        }, 1000)
+        }, 500)
       } else {
         setTimeout(() => {
           const sectionEntries = arrayEntries[currentSection!.id] || [];
@@ -161,7 +162,7 @@ export default function ChatPage() {
           setCurrentArrayEntry({ sectionId: '' });
           setCurrentFieldIndex(0);
           setShowAddMorePrompt(true);
-        }, 1000)
+        }, 500)
       }
     } else {
       switch (currentQuestion!.inputType) {
@@ -245,7 +246,7 @@ export default function ChatPage() {
       if (currentQuestionIndex < allQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }, 1000); // 1-second delay
+        }, 500);
 
       } else {
         alert('All questions completed. Submitting...');
@@ -257,7 +258,7 @@ export default function ChatPage() {
       if (inputRef.current) {
         inputRef.current.focus();
       }
-    }, 1000);
+    }, 500);
   };
 
   const handleAddMore = (addMore: boolean) => {
@@ -311,7 +312,13 @@ export default function ChatPage() {
     try {
 
       const result = enrichDataWithQuestions(responses, sections);
-      console.log("Result of Response: ", result);
+      // console.log("Result of Response: ", result);
+      console.log("Response", responses);
+
+      const mbtiScore = getMBTIScore(responses);
+
+      console.log("MBTI Score:", JSON.stringify(mbtiScore, null, 2))
+
     } catch (error) {
       console.log(error);
     }
