@@ -31,7 +31,7 @@ export const sections: Section[] = [
         questions: [
             {
                 id: "A1QID3",
-                question: `Academic Records</br><i style="color: white; font-size: 12px">Press Enter/Send button to start the chat.</i>`,
+                question: `Academic Records</br><i style="color: gray; font-size: 12px">Press Enter/Send button to start the chat.</i>`,
                 inputType: "array",
                 fields: [
                     { id: "CollegeID", question: "Current / Last College", inputType: "text" },
@@ -47,7 +47,7 @@ export const sections: Section[] = [
         section: "Extra Course Information",
         questions: [
             {
-                id: "A1QID4", question: `Lets fill your extra course information. </br><i style="color: white; font-size: 12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "CourseID", question: `<b>What was your course name?</b> </br> <i style="color:white;font-size:12px">Type N/A if not applied to you.</i>`, inputType: "text" }]
+                id: "A1QID4", question: `Lets fill your extra course information. </br><i style="color: gray; font-size: 12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "CourseID", question: `<b>What was your course name?</b> </br> <i style="color:gray;font-size:12px">Type N/A if not applied to you.</i>`, inputType: "text" }]
             },
         ]
     },
@@ -55,7 +55,7 @@ export const sections: Section[] = [
         id: "SEC2_2_1",
         section: "Extracurricular Information",
         questions: [
-            { id: "A1QID5", question: `Lets fill your extracurricular activities.</br><i style="color:white;font-size:12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "ActivityID", question: "Activity Name", inputType: "text" }] },
+            { id: "A1QID5", question: `Lets fill your extracurricular activities.</br><i style="color:gray;font-size:12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "ActivityID", question: "Activity Name", inputType: "text" }] },
         ]
     },
     {
@@ -65,7 +65,7 @@ export const sections: Section[] = [
         questions: [
             {
                 id: "I1Q1D1",
-                question: `<b>Internship information</b> </br><i style="color:white;font-size:12px">Press Enter/Send button to start the chat.</i>`,
+                question: `<b>Internship information</b> </br><i style="color:gray;font-size:12px">Press Enter/Send button to start the chat.</i>`,
                 inputType: "array",
                 fields: [{ id: "InternshipID", question: "Internship Description", inputType: "textarea" }]
             }

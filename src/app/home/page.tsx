@@ -142,21 +142,26 @@ export default function ChatPage() {
       setDateInput('');
 
       if (currentFieldIndex < currentSection!.questions[0].fields!.length - 1) {
-        setCurrentFieldIndex(currentFieldIndex + 1);
+        setTimeout(() => {
+
+          setCurrentFieldIndex(currentFieldIndex + 1);
+        }, 1000)
       } else {
-        const sectionEntries = arrayEntries[currentSection!.id] || [];
-        const updatedEntries = [...sectionEntries, updatedEntry];
-        setArrayEntries(prev => ({
-          ...prev,
-          [currentSection!.id]: updatedEntries
-        }));
-        setResponses(prev => ({
-          ...prev,
-          [currentSection!.questions[0].id]: updatedEntries
-        }));
-        setCurrentArrayEntry({ sectionId: '' });
-        setCurrentFieldIndex(0);
-        setShowAddMorePrompt(true);
+        setTimeout(() => {
+          const sectionEntries = arrayEntries[currentSection!.id] || [];
+          const updatedEntries = [...sectionEntries, updatedEntry];
+          setArrayEntries(prev => ({
+            ...prev,
+            [currentSection!.id]: updatedEntries
+          }));
+          setResponses(prev => ({
+            ...prev,
+            [currentSection!.questions[0].id]: updatedEntries
+          }));
+          setCurrentArrayEntry({ sectionId: '' });
+          setCurrentFieldIndex(0);
+          setShowAddMorePrompt(true);
+        }, 1000)
       }
     } else {
       switch (currentQuestion!.inputType) {
@@ -252,7 +257,7 @@ export default function ChatPage() {
       if (inputRef.current) {
         inputRef.current.focus();
       }
-    }, 0);
+    }, 1000);
   };
 
   const handleAddMore = (addMore: boolean) => {
@@ -352,6 +357,7 @@ export default function ChatPage() {
     return currentQuestion?.question || '';
   };
 
+  // Input multiple record 
   const renderArrayInputField = () => {
     const currentSection = sections.find(s => s.id === currentArraySectionId);
     const currentField = currentSection!.questions[0].fields![currentFieldIndex];
@@ -439,7 +445,9 @@ export default function ChatPage() {
     if (inArrayInput) return renderArrayInputField();
     if (!currentQuestion) return null;
 
+    const isSingleOption = currentQuestion.options?.length === 1;
     switch (currentQuestion.inputType) {
+
       case 'text':
         return (
           <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
@@ -461,7 +469,7 @@ export default function ChatPage() {
         );
       case 'radio':
         return (
-          <div className="flex flex-col w-full bg-white p-4 rounded-lg shadow-md">
+          <div className="flex flex-col w-full bg-[#F3F3F3] p-4 rounded-lg shadow-md">
             <div className="flex flex-wrap gap-4 mb-4">
               {currentQuestion.options?.map((option) => (
                 <label key={option} className="flex items-center space-x-2 cursor-pointer">
@@ -487,14 +495,16 @@ export default function ChatPage() {
             </div>
             <div className="flex justify-end">
               <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
-                Next
+                {
+                  isSingleOption ? "Next" : "Send"
+                }
               </button>
             </div>
           </div>
         );
       case 'checkbox':
         return (
-          <div className="flex flex-col w-full bg-white p-4 rounded-lg shadow-md">
+          <div className="flex flex-col w-full bg-[#F3F3F3] p-4 rounded-lg shadow-md">
             <div className="flex flex-wrap gap-4 mb-4">
               {currentQuestion.options?.map((option) => (
                 <label key={option} className="flex items-center space-x-2 cursor-pointer">
@@ -511,14 +521,14 @@ export default function ChatPage() {
             </div>
             <div className="flex justify-end">
               <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
-                Next
+                Send
               </button>
             </div>
           </div>
         );
       case 'date':
         return (
-          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+          <div className="flex w-full flex-col bg-[#F3F3F3] p-4 rounded-lg shadow-md">
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               type="date"
@@ -531,14 +541,14 @@ export default function ChatPage() {
             />
             <div className="flex justify-end">
               <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
-                Next
+                Send
               </button>
             </div>
           </div>
         );
       case 'dropdown':
         return (
-          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+          <div className="flex w-full flex-col bg-[#F3F3F3] p-4 rounded-lg shadow-md">
             <Select
               ref={inputRef as any}
               defaultMenuIsOpen={true}
@@ -569,7 +579,7 @@ export default function ChatPage() {
 
             <div className="flex justify-end">
               <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
-                Next
+                Send
               </button>
             </div>
           </div>
@@ -624,7 +634,7 @@ export default function ChatPage() {
 
           {!showAddMorePrompt && inArrayInput && (
             <div className="mb-4 text-left">
-              <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+              <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
 
               </div>
             </div>
@@ -649,9 +659,9 @@ export default function ChatPage() {
           <div ref={chatEndRef} />
         </div>
 
-        <div className="sticky bottom-0 bg-transparent flex items-center gap-2 mt-2">
-          {renderInputField()}
-        </div>
+      </div>
+      <div className="sticky bottom-0 bg-transparent flex items-center gap-2 m-2">
+        {renderInputField()}
       </div>
     </div>
   );
