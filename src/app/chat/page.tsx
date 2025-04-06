@@ -1,92 +1,15 @@
 'use client';
 
 import Navbar from "@/components/navbar";
+import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
 import { IoSend } from "react-icons/io5";
 import Select from 'react-select';
+import { Question, Section } from "types/chat";
 
-interface Question {
-    id: string;
-    question: string;
-    inputType: string;
-    options?: string[];
-    fields?: Question[];
-}
 
-interface Section {
-    id: string;
-    section: string;
-    questions: Question[];
-    showOnlyWhen?: { [key: string]: string };
-}
 
-const sections: Section[] = [
-    {
-        id: "SEC1",
-        section: "Basic Info",
-        questions: [
-            { id: "S1QID1", question: "What is your name?", inputType: "text" },
-            { id: "S1QID2", question: "What is your gender?", inputType: "radio", options: ["Male", "Female", "Other"] },
-            { id: "S1QID3", question: "What is your dob?", inputType: "date" },
-            { id: "S1QID4", question: "What is your city name?", inputType: "dropdown", options: ["City-1", "City-2"] },
-            { id: "S1QID5", question: "Which languages do you speak?", inputType: "checkbox", options: ["English", "Spanish", "French", "German"] },
-        ]
-    },
-    {
-        id: "SEC2",
-        section: "Academic Info",
-        questions: [
-            { id: "A1QID1", question: "What is your highest level of education?", inputType: "dropdown", options: ["High School", "Diploma", "Bachelor's", "Master's", "Ph.D."] },
-            { id: "A1QID2", question: "Which university or institution did you attend?", inputType: "text" },
-            { id: "A1QID3", question: "What was your major or field of study?", inputType: "dropdown", options: ["Computer Science", "Engineering", "Business", "Arts", "Science", "Other"] },
-            { id: "A1QID4", question: "What year did you graduate (or are expected to graduate)?", inputType: "date" },
-            { id: "A1QID5", question: "Did you receive any honors or distinctions?", inputType: "radio", options: ["Yes", "No"] },
-            { id: "A1QID6", question: "Have you completed any certifications or professional courses?", inputType: "text" },
-            { id: "A1QID7", question: "Are you currently pursuing further education?", inputType: "radio", options: ["Yes", "No"] },
-            { id: "A1QID8", question: "What was your favorite subject during your studies?", inputType: "text" },
-            { id: "A1QID9", question: "What was the biggest challenge you faced during your education?", inputType: "text" },
-            { id: "A1QID10", question: "Which skills did you gain during your studies?", inputType: "checkbox", options: ["Programming", "Research", "Teamwork", "Leadership", "Communication"] },
-        ]
-    },
-    {
-        id: "SEC3",
-        section: "Employment History",
-        showOnlyWhen: { "A1QID7": "No" },
-        questions: [
-            {
-                id: "E1QID1",
-                question: "Employment history",
-                inputType: "array",
-                fields: [
-                    { id: "JobID", question: "Job Title", inputType: "text" },
-                    { id: "CompanyID", question: "Company Name", inputType: "text" },
-                    { id: "LocationID", question: "Job Location", inputType: "text" },
-                    { id: "StartDateID", question: "Start Date", inputType: "date" },
-                    { id: "EndDateID", question: "End Date", inputType: "date" },
-                    { id: "ResponsibilitiesID", question: "Key Responsibilities", inputType: "textarea" }
-                ]
-            }
-        ]
-    },
-    {
-        id: "SEC4",
-        section: "Volunteer Experience",
-        showOnlyWhen: { "A1QID5": "Yes" },
-        questions: [
-            {
-                id: "V1QID1",
-                question: "Volunteer experience",
-                inputType: "array",
-                fields: [
-                    { id: "RoleID", question: "Volunteer Role", inputType: "text" },
-                    { id: "OrgID", question: "Organization Name", inputType: "text" },
-                    { id: "DurationID", question: "Duration", inputType: "text" },
-                    { id: "TasksID", question: "Main Tasks", inputType: "textarea" }
-                ]
-            }
-        ]
-    }
-];
+
 
 interface ChatMessage {
     type: string;
