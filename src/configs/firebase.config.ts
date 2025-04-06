@@ -4,12 +4,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBYpmMaDGU9yggKYPAoVH7ZrqLkCrl8-u8',
-  authDomain: 'biocan-ai.firebaseapp.com',
-  projectId: 'biocan-ai',
-  storageBucket: 'biocan-ai.firebasestorage.app',
-  messagingSenderId: '909292250793',
-  appId: '1:909292250793:web:938e7a4c832d4875372bb8'
+  apiKey: process.env.FIREBASE_APIKEY,
+  authDomain: process.env.FIREBASE_AUTHDOMAIN,
+  projectId: process.env.FIREBASE_PROJECTID,
+  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
+  appId: process.env.FIREBASE_APPID,
 };
 
 // Initialize Firebase

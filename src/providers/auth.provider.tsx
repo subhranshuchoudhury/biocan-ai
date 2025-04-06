@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             name: user.displayName,
             email: user.email,
             imageURL: user.photoURL,
-            online: true,
             lastSeen: serverTimestamp(),
           },
           { merge: true }
