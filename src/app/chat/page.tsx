@@ -117,7 +117,6 @@ export default function ChatPage() {
             };
             setCurrentArrayEntry(updatedEntry);
 
-            alert("Next")
 
 
             setChatMessages(prev => [
@@ -354,7 +353,7 @@ export default function ChatPage() {
                                 setTextInput(e.target.value);
                                 handleInputChange(e.target.value);
                             }}
-                            onKeyPress={handleTextKeyPress}
+                            onKeyDown={handleTextKeyPress}
                         />
                         <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
                             <IoSend color="#155dfc" size={20} />
@@ -375,7 +374,7 @@ export default function ChatPage() {
                             }}
                         />
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -395,7 +394,7 @@ export default function ChatPage() {
                             }}
                         />
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -470,7 +469,7 @@ export default function ChatPage() {
                             ))}
                         </div>
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -494,7 +493,7 @@ export default function ChatPage() {
                             ))}
                         </div>
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -514,7 +513,7 @@ export default function ChatPage() {
                             }}
                         />
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -535,7 +534,7 @@ export default function ChatPage() {
                             placeholder="Select an option"
                         />
                         <div className="flex justify-end">
-                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
                             </button>
                         </div>

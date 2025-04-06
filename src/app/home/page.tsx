@@ -1,460 +1,637 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import { reach } from 'yup';
-import { IoSend } from 'react-icons/io5';
-import { useAuth } from '@/providers';
-import Navbar from '@/components/navbar';
+import Navbar from "@/components/navbar";
+import { sections } from "@/questions/question";
+import { useState, useEffect, useRef } from "react";
+import { IoSend } from "react-icons/io5";
+import Select from 'react-select';
+import { Question, Section } from "types/chat";
 
-// Types
-interface FormValues {
-  basicInfo: { [key: string]: string };
-  education: {
-    highSchoolStream: string;
-    highSchoolPercentage: string;
-    academicRecords: Array<{ college: string; degree: string; fieldOfStudy: string; yearOfCompletion: string }>;
-    extraCourses: string[];
-    extracurriculars: string[];
-    hasInternships: string;
-    internships: string[];
-  };
-  workExperience?: {
-    experienceRecords: Array<{
-      organization: string;
-      designation: string;
-      description: string;
-      skills: string;
-      fromYearMonth: string;
-      tillYearMonth: string;
-    }>;
-  };
+
+
+
+
+interface ChatMessage {
+  type: string;
+  content: string;
+  sectionId?: string;
+  isArrayField?: boolean;
+  entryNumber?: number;
 }
 
-interface ChatMessageBase {
-  text: string;
-  isBot: boolean;
-  field?: string;
-  options?: string[];
-  inputType?: 'text' | 'select' | 'radio' | 'textarea' | 'date';
-  subQuestionIndex?: number; // Track sub-question index within academicRecords
-  isFollowUp?: boolean; // Flag for follow-up questions
+interface ArrayEntry {
+  [key: string]: string;
+  sectionId: string;
 }
 
-interface ChatMessageArray extends ChatMessageBase {
-  isArrayField: true;
-  arrayFieldName: string; // Required when isArrayField is true
-}
-
-interface ChatMessageNonArray extends ChatMessageBase {
-  isArrayField?: false;
-  arrayFieldName?: never; // Not allowed when isArrayField is false or undefined
-}
-
-type ChatMessage = ChatMessageArray | ChatMessageNonArray;
-
-const initialValues: FormValues = {
-  basicInfo: { name: '', gender: '', address: '', pincode: '', mobile: '', email: '', status: '' },
-  education: {
-    highSchoolStream: '',
-    highSchoolPercentage: '',
-    academicRecords: [{ college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }],
-    extraCourses: [],
-    extracurriculars: [],
-    hasInternships: '',
-    internships: []
-  },
-  workExperience: { experienceRecords: [] }
-};
-
-const validationSchema = Yup.object({
-  basicInfo: Yup.object({
-    name: Yup.string().matches(/^[a-zA-Z\s]+$/, 'Name should only contain letters and spaces').required('Required'),
-    gender: Yup.string().required('Required'),
-    address: Yup.string().required('Required'),
-    pincode: Yup.string().matches(/^\d{6}$/, 'Must be 6 digits').required('Required'),
-    mobile: Yup.string().matches(/^\d{10}$/, 'Must be 10 digits').required('Required'),
-    email: Yup.string().email('Invalid email').required('Required'),
-    status: Yup.string().required('Required')
-  }),
-  education: Yup.object({
-    highSchoolStream: Yup.string().required('Required'),
-    highSchoolPercentage: Yup.number().min(0, 'Must be at least 0').max(100, 'Must be at most 100').required('Required'),
-    academicRecords: Yup.array().of(
-      Yup.object({
-        college: Yup.string().required('Required'),
-        degree: Yup.string().required('Required'),
-        fieldOfStudy: Yup.string().required('Required'),
-        yearOfCompletion: Yup.string().required('Required')
-      })
-    ),
-    extraCourses: Yup.array().of(Yup.string()),
-    extracurriculars: Yup.array().of(Yup.string()),
-    hasInternships: Yup.string().required('Required'),
-    internships: Yup.array().when('hasInternships', {
-      is: 'yes',
-      then: () => Yup.array().of(Yup.string().min(10, 'Please provide more details').required('Required')).min(1, 'Add at least one internship').required()
-    })
-  }),
-  workExperience: Yup.object().when('basicInfo.status', {
-    is: 'Working Professional',
-    then: () => Yup.object({
-      experienceRecords: Yup.array().of(
-        Yup.object({
-          organization: Yup.string().required('Required'),
-          designation: Yup.string().required('Required'),
-          description: Yup.string().required('Required'),
-          skills: Yup.string().required('Required'),
-          fromYearMonth: Yup.string().required('Required'),
-          tillYearMonth: Yup.string().required('Required')
-        })
-      ).min(1, 'Add at least one experience record')
-    })
-  })
-});
-
-const Home = () => {
-  const { user } = useAuth();
+export default function ChatPage() {
+  const [responses, setResponses] = useState<{ [key: string]: any }>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [textInput, setTextInput] = useState<string>('');
+  const [textareaInput, setTextareaInput] = useState<string>('');
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [dateInput, setDateInput] = useState<string>('');
+  const [checkboxSelections, setCheckboxSelections] = useState<string[]>([]);
+  const [arrayEntries, setArrayEntries] = useState<{ [sectionId: string]: ArrayEntry[] }>({});
+  const [currentArrayEntry, setCurrentArrayEntry] = useState<ArrayEntry>({ sectionId: '' });
+  const [currentFieldIndex, setCurrentFieldIndex] = useState<number>(0);
+  const [showAddMorePrompt, setShowAddMorePrompt] = useState<boolean>(false);
+  const [inArrayInput, setInArrayInput] = useState<boolean>(false);
+  const [currentArraySectionId, setCurrentArraySectionId] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [formData, setFormData] = useState<FormValues>(initialValues);
-  const [userInput, setUserInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
 
-  const years = Array.from({ length: 21 }, (_, i) => (2010 + i).toString());
+  const getVisibleSections = (): Section[] => {
+    return sections.filter(section => {
+      if (!section.showOnlyWhen) return true;
+      return Object.entries(section.showOnlyWhen).every(([questionId, requiredAnswer]) =>
+        responses[questionId] === requiredAnswer
+      );
+    });
+  };
 
-  const questions: ChatMessage[] = [
-    // Part 1 - Basic Information
-    { text: "What's your name?", isBot: true, field: "basicInfo.name", inputType: "text" },
-    { text: "What's your gender?", isBot: true, field: "basicInfo.gender", inputType: "select", options: ["Male", "Female", "Other"] },
-    { text: "What's your address?", isBot: true, field: "basicInfo.address", inputType: "text" },
-    { text: "What's your pincode?", isBot: true, field: "basicInfo.pincode", inputType: "text" },
-    { text: "What's your mobile number?", isBot: true, field: "basicInfo.mobile", inputType: "text" },
-    { text: "What's your email?", isBot: true, field: "basicInfo.email", inputType: "text" },
-    { text: "What defines you best?", isBot: true, field: "basicInfo.status", inputType: "radio", options: ["Currently Studying", "Recently Graduated", "Working Professional"] },
-    // Part 2 - Educational Background
-    { text: "What was your high school stream?", isBot: true, field: "education.highSchoolStream", inputType: "select", options: ["Science with Biology", "Science without Biology", "Commerce", "Arts"] },
-    { text: "What's your high school percentage?", isBot: true, field: "education.highSchoolPercentage", inputType: "text" },
-    { text: "Tell me about your college education (College name)", isBot: true, field: "education.academicRecords.0.college", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords", subQuestionIndex: 0 },
-    { text: "What's your degree?", isBot: true, field: "education.academicRecords.0.degree", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords", subQuestionIndex: 1 },
-    { text: "What's your field of study?", isBot: true, field: "education.academicRecords.0.fieldOfStudy", inputType: "text", isArrayField: true, arrayFieldName: "education.academicRecords", subQuestionIndex: 2 },
-    { text: "Which year did you complete it?", isBot: true, field: "education.academicRecords.0.yearOfCompletion", inputType: "select", options: years, isArrayField: true, arrayFieldName: "education.academicRecords", subQuestionIndex: 3 },
-    { text: "Any extra courses you've done?", isBot: true, field: "education.extraCourses.0", inputType: "text", isArrayField: true, arrayFieldName: "education.extraCourses" },
-    { text: "Any extracurricular activities?", isBot: true, field: "education.extracurriculars.0", inputType: "text", isArrayField: true, arrayFieldName: "education.extracurriculars" },
-    { text: "Have you done any internships/part-time jobs?", isBot: true, field: "education.hasInternships", inputType: "radio", options: ["Yes", "No"] }
-  ];
+  const allQuestions: Question[] = getVisibleSections().flatMap(section => section.questions);
+  const currentQuestion: Question | undefined = allQuestions[currentQuestionIndex];
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
-  const workExperienceQuestions: ChatMessage[] = [
-    { text: "Which organization did you work for?", isBot: true, field: "workExperience.experienceRecords.0.organization", inputType: "text", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" },
-    { text: "What was your designation?", isBot: true, field: "workExperience.experienceRecords.0.designation", inputType: "text", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" },
-    { text: "Describe your role", isBot: true, field: "workExperience.experienceRecords.0.description", inputType: "textarea", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" },
-    { text: "What skills did you use/learn?", isBot: true, field: "workExperience.experienceRecords.0.skills", inputType: "text", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" },
-    { text: "When did you start? (YYYY-MM)", isBot: true, field: "workExperience.experienceRecords.0.fromYearMonth", inputType: "text", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" },
-    { text: "When did you end? (YYYY-MM)", isBot: true, field: "workExperience.experienceRecords.0.tillYearMonth", inputType: "text", isArrayField: true, arrayFieldName: "workExperience.experienceRecords" }
-  ];
+  const getCurrentSection = (): Section | undefined => {
+    return getVisibleSections().find(section =>
+      section.questions.some(q => q.id === currentQuestion?.id)
+    );
+  };
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('formData');
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      setFormData({
-        ...initialValues,
-        ...parsedData,
-        education: {
-          ...initialValues.education,
-          ...parsedData.education,
-          academicRecords: Array.isArray(parsedData.education?.academicRecords) ? parsedData.education.academicRecords : initialValues.education.academicRecords
+  const handleInputChange = (value: any) => {
+    if (inArrayInput) {
+      setCurrentArrayEntry(prev => ({
+        ...prev,
+        [getCurrentSection()!.questions[0].fields![currentFieldIndex].id]: value
+      }));
+    } else if (currentQuestion?.inputType === 'checkbox') {
+      setCheckboxSelections(value);
+    } else {
+      setResponses({ ...responses, [currentQuestion!.id]: value });
+    }
+  };
+
+  const handleCheckboxChange = (option: string) => {
+    setCheckboxSelections(prev => {
+      if (prev.includes(option)) {
+        return prev.filter(item => item !== option);
+      } else {
+        return [...prev, option];
+      }
+    });
+  };
+
+  const handleNext = () => {
+    let value: any;
+    const currentSection = getCurrentSection();
+
+    if (inArrayInput) {
+      const currentField = currentSection!.questions[0].fields![currentFieldIndex];
+
+      switch (currentField.inputType) {
+        case 'text':
+          value = textInput;
+          break;
+        case 'textarea':
+          value = textareaInput;
+          break;
+        case 'date':
+          value = dateInput;
+          break;
+        default:
+          value = '';
+      }
+
+      if (!value) {
+        alert('Please answer the question.');
+        return;
+      }
+
+      const updatedEntry = {
+        ...currentArrayEntry,
+        [currentField.id]: value,
+        sectionId: currentSection!.id
+      };
+      setCurrentArrayEntry(updatedEntry);
+
+
+
+      setChatMessages(prev => [
+        ...prev,
+        {
+          type: "question",
+          content: currentField.question,
+          sectionId: currentSection!.id,
+          isArrayField: true,
+          entryNumber: entryCount[currentSection!.id] || 1
         },
-        workExperience: {
-          experienceRecords: Array.isArray(parsedData.workExperience?.experienceRecords) ? parsedData.workExperience.experienceRecords : []
+        {
+          type: "answer",
+          content: value,
+          sectionId: currentSection!.id
         }
-      });
+      ]);
+
+
+      setTextInput('');
+      setTextareaInput('');
+      setDateInput('');
+
+      if (currentFieldIndex < currentSection!.questions[0].fields!.length - 1) {
+        setCurrentFieldIndex(currentFieldIndex + 1);
+      } else {
+        const sectionEntries = arrayEntries[currentSection!.id] || [];
+        const updatedEntries = [...sectionEntries, updatedEntry];
+        setArrayEntries(prev => ({
+          ...prev,
+          [currentSection!.id]: updatedEntries
+        }));
+        setResponses(prev => ({
+          ...prev,
+          [currentSection!.questions[0].id]: updatedEntries
+        }));
+        setCurrentArrayEntry({ sectionId: '' });
+        setCurrentFieldIndex(0);
+        setShowAddMorePrompt(true);
+      }
+    } else {
+      switch (currentQuestion!.inputType) {
+        case 'text':
+          value = textInput;
+          break;
+        case 'dropdown':
+          value = selectedOption;
+          break;
+        case 'date':
+          value = dateInput;
+          break;
+        case 'radio':
+          value = responses[currentQuestion!.id];
+          break;
+        case 'checkbox':
+          value = checkboxSelections;
+          break;
+        case 'array':
+          setInArrayInput(true);
+          setCurrentArraySectionId(currentSection!.id);
+          setEntryCount(prev => ({
+            ...prev,
+            [currentSection!.id]: (prev[currentSection!.id] || 0) + 1
+          }));
+          setChatMessages(prev => [
+            ...prev,
+            {
+              type: "question",
+              content: currentQuestion!.question,
+              sectionId: currentSection!.id
+            },
+            {
+              type: "system",
+              content: `Let's fill in details for ${currentSection!.section} Entry #1`
+            }
+          ]);
+          return;
+        default:
+          value = '';
+      }
+
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        alert('Please answer the question.');
+        return;
+      }
+
+      // ! This is for preventing displaying the initial message two times.
+
+      if (chatMessages.length === 1) {
+        setChatMessages([
+          { type: "question", content: currentQuestion!.question },
+          {
+            type: "answer",
+            content: Array.isArray(value) ? value.join(', ') : value
+          }
+        ]);
+      } else {
+        setChatMessages(prev => [
+          ...prev,
+          { type: "question", content: currentQuestion!.question },
+          {
+            type: "answer",
+            content: Array.isArray(value) ? value.join(', ') : value
+          }
+        ]);
+      }
+
+
+
+      setResponses(prev => ({
+        ...prev,
+        [currentQuestion!.id]: value
+      }));
+
+      setTextInput('');
+      setSelectedOption(null);
+      setDateInput('');
+      setCheckboxSelections([]);
+
+      if (currentQuestionIndex < allQuestions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        alert('All questions completed. Submitting...');
+        console.log(responses);
+      }
     }
-    // Set initial messages synchronously to avoid duplication
-    setChatMessages([{ text: `Hello ${user?.displayName || 'User'}, let's start with some basic information!`, isBot: true }, questions[0]]);
-  }, [user]);
+
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 0);
+  };
+
+  const handleAddMore = (addMore: boolean) => {
+    const currentSection = getCurrentSection()!;
+    setShowAddMorePrompt(false);
+
+    if (addMore) {
+      setInArrayInput(true);
+      setEntryCount(prev => ({
+        ...prev,
+        [currentSection.id]: (prev[currentSection.id] || 0) + 1
+      }));
+      setChatMessages(prev => [
+        ...prev,
+        { type: "question", content: `Would you like to add another ${currentSection.section.toLowerCase()} entry?` },
+        { type: "answer", content: "Yes" },
+        { type: "system", content: `Let's fill in details for ${currentSection.section}` }
+      ]);
+    } else {
+      setChatMessages(prev => [
+        ...prev,
+        { type: "question", content: `Would you like to add another ${currentSection.section.toLowerCase()} entry?` },
+        { type: "answer", content: "No" }
+      ]);
+      setInArrayInput(false);
+      setCurrentArraySectionId('');
+      if (currentQuestionIndex < allQuestions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        alert('All questions completed. Submitting...');
+        console.log(responses);
+      }
+    }
+
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 0);
+  };
 
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-  }, [chatMessages]);
+  }, [responses, currentQuestionIndex, currentFieldIndex, inArrayInput, showAddMorePrompt]);
 
-  const handleResponse = async (values: FormValues, setFieldValue: any, response: string) => {
-    if (!response.trim() || isLoading) return;
-    setIsLoading(true);
-
-    const currentQuestion = chatMessages[chatMessages.length - 1];
-    const fieldPath = currentQuestion.field!;
-
-    // Handle follow-up question response
-    if (currentQuestion.isFollowUp) {
-      if (response.toLowerCase() === 'yes') {
-        const arrayFieldName = (currentQuestion as ChatMessageArray).arrayFieldName;
-        const newIndex = values.education.academicRecords.length;
-
-        // Add new empty record
-        setFieldValue(arrayFieldName, [...values.education.academicRecords, { college: '', degree: '', fieldOfStudy: '', yearOfCompletion: '' }]);
-
-        // Start with the first question of the new record
-        const nextQuestion: ChatMessageArray = {
-          text: "Tell me about your college education (College name)",
-          isBot: true,
-          field: `${arrayFieldName}.${newIndex}.college`,
-          inputType: "text",
-          isArrayField: true,
-          arrayFieldName,
-          subQuestionIndex: 0
-        };
-        setChatMessages(prev => [...prev, { text: response, isBot: false }, nextQuestion]);
-      } else {
-        setChatMessages(prev => [...prev, { text: response, isBot: false }]);
-        // Move to the next question after the current section
-        let nextQuestionIndex = currentStep + 1;
-        if ((currentQuestion as ChatMessageArray).arrayFieldName === 'education.academicRecords') {
-          nextQuestionIndex = 13; // Jump to "Any extra courses you've done?"
-        } else if ((currentQuestion as ChatMessageArray).arrayFieldName === 'education.extraCourses') {
-          nextQuestionIndex = 14; // Jump to "Any extracurricular activities?"
-        }
-        if (nextQuestionIndex < questions.length) {
-          setCurrentStep(nextQuestionIndex);
-          setTimeout(() => setChatMessages(prev => [...prev, questions[nextQuestionIndex]]), 1000);
-        } else if (values.education.hasInternships === 'yes' && values.education.internships.length === 0) {
-          setChatMessages(prev => [...prev, { text: "Please tell me about your internship details", isBot: true, field: "education.internships.0", inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
-        } else if (values.basicInfo.status === 'Working Professional' && (!values.workExperience?.experienceRecords.length)) {
-          setChatMessages(prev => [...prev, workExperienceQuestions[0]]);
-        } else {
-          setChatMessages(prev => [...prev, { text: "Great! All done. Ready to submit?", isBot: true }]);
+  useEffect(() => {
+    if (chatMessages.length === 0 && currentQuestionIndex >= 0) {
+      const initialMessages: ChatMessage[] = [];
+      for (let i = 0; i < currentQuestionIndex; i++) {
+        const q = allQuestions[i];
+        initialMessages.push({ type: "question", content: q.question });
+        if (responses[q.id]) {
+          initialMessages.push({
+            type: "answer",
+            content: Array.isArray(responses[q.id]) ? responses[q.id].join(', ') : responses[q.id]
+          });
         }
       }
-      setUserInput('');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate response
-    try {
-      const schemaPart = reach(validationSchema, fieldPath) as Yup.Schema<any>;
-      await schemaPart.validate(response);
-    } catch (error) {
-      setChatMessages(prev => [...prev, { text: `Sorry, please enter valid details (${(error as Yup.ValidationError).message})`, isBot: true }]);
-      setTimeout(() => setChatMessages(prev => [...prev, currentQuestion]), 1000);
-      setUserInput('');
-      setIsLoading(false);
-      return;
-    }
-
-    let updatedValues = { ...values };
-    const fieldParts = fieldPath.split('.');
-    if (currentQuestion.isArrayField && fieldParts.length > 2) {
-      const index = parseInt(fieldParts[2], 10);
-      const fieldName = fieldParts[3];
-      const arrayFieldName = (currentQuestion as ChatMessageArray).arrayFieldName;
-      const parentField = fieldParts[0] as keyof FormValues;
-
-      if (parentField === 'education') {
-        const arrayData = Array.isArray(updatedValues[parentField][arrayFieldName as keyof FormValues['education']])
-          ? [...updatedValues[parentField][arrayFieldName as keyof FormValues['education']] as any[]]
-          : [];
-        arrayData[index] = arrayFieldName === 'academicRecords'
-          ? { ...arrayData[index], [fieldName]: response }
-          : response;
-        updatedValues = {
-          ...updatedValues,
-          education: { ...updatedValues.education, [arrayFieldName]: arrayData }
-        };
-      } else if (parentField === 'workExperience') {
-        const arrayData = Array.isArray(updatedValues.workExperience?.experienceRecords)
-          ? [...updatedValues.workExperience.experienceRecords]
-          : [];
-        arrayData[index] = { ...arrayData[index], [fieldName]: response };
-        updatedValues = {
-          ...updatedValues,
-          workExperience: { experienceRecords: arrayData }
-        };
+      if (!inArrayInput && currentQuestionIndex < allQuestions.length) {
+        initialMessages.push({ type: "question", content: allQuestions[currentQuestionIndex].question });
       }
-    } else {
-      updatedValues = {
-        ...updatedValues,
-        [fieldParts[0]]: { ...updatedValues[fieldParts[0] as keyof FormValues], [fieldParts[1]]: response }
-      };
+      setChatMessages(initialMessages);
     }
+  }, [responses]);
 
-    setFieldValue(fieldPath, response);
-    setFormData(updatedValues);
-    setChatMessages(prev => [...prev, { text: response, isBot: false }]);
-    localStorage.setItem('formData', JSON.stringify(updatedValues));
-
-    // Handle next step or follow-up for repeatable fields
-    if (currentQuestion.isArrayField && (currentQuestion as ChatMessageArray).arrayFieldName === 'education.academicRecords' && currentQuestion.subQuestionIndex === 3) {
-      // After yearOfCompletion (subQuestionIndex 3), ask follow-up
-      const followUpQuestion: ChatMessageArray = {
-        text: "Would you like to add another academic record?",
-        isBot: true,
-        field: (currentQuestion as ChatMessageArray).arrayFieldName,
-        inputType: "radio",
-        options: ["Yes", "No"],
-        isArrayField: true,
-        arrayFieldName: (currentQuestion as ChatMessageArray).arrayFieldName,
-        isFollowUp: true
-      };
-      setChatMessages(prev => [...prev, followUpQuestion]);
-    } else if (currentQuestion.isArrayField && (currentQuestion as ChatMessageArray).arrayFieldName === 'education.academicRecords') {
-      // Move to next sub-question within academicRecords
-      const nextSubQuestionIndex = (currentQuestion.subQuestionIndex || 0) + 1;
-      if (nextSubQuestionIndex < 4) { // 4 questions in academicRecords sequence
-        const arrayFieldName = (currentQuestion as ChatMessageArray).arrayFieldName;
-        const nextQuestion: ChatMessageArray = {
-          text: [
-            "Tell me about your college education (College name)",
-            "What's your degree?",
-            "What's your field of study?",
-            "Which year did you complete it?"
-          ][nextSubQuestionIndex],
-          isBot: true,
-          field: `${arrayFieldName}.${fieldParts[2]}.${['college', 'degree', 'fieldOfStudy', 'yearOfCompletion'][nextSubQuestionIndex]}`,
-          inputType: nextSubQuestionIndex === 3 ? "select" : "text",
-          options: nextSubQuestionIndex === 3 ? years : undefined,
-          isArrayField: true,
-          arrayFieldName,
-          subQuestionIndex: nextSubQuestionIndex
-        };
-        setChatMessages(prev => [...prev, nextQuestion]);
-      }
-    } else if (currentQuestion.isArrayField) {
-      const arrayFieldName = (currentQuestion as ChatMessageArray).arrayFieldName;
-      if (arrayFieldName === 'education.extraCourses' && fieldParts[3] === undefined) {
-        setChatMessages(prev => [...prev, { text: "Would you like to add another extra course?", isBot: true, field: arrayFieldName, inputType: "radio", options: ["Yes", "No"], isArrayField: true, arrayFieldName, isFollowUp: true }]);
-      } else if (arrayFieldName === 'education.extracurriculars' && fieldParts[3] === undefined) {
-        setChatMessages(prev => [...prev, { text: "Would you like to add another extracurricular activity?", isBot: true, field: arrayFieldName, inputType: "radio", options: ["Yes", "No"], isArrayField: true, arrayFieldName, isFollowUp: true }]);
-      } else if (arrayFieldName === 'education.internships' && fieldParts[3] === undefined) {
-        setChatMessages(prev => [...prev, { text: "Would you like to add another internship?", isBot: true, field: arrayFieldName, inputType: "radio", options: ["Yes", "No"], isArrayField: true, arrayFieldName, isFollowUp: true }]);
-      } else if (arrayFieldName === 'workExperience.experienceRecords' && fieldParts[3] === 'tillYearMonth') {
-        setChatMessages(prev => [...prev, { text: "Would you like to add another work experience?", isBot: true, field: arrayFieldName, inputType: "radio", options: ["Yes", "No"], isArrayField: true, arrayFieldName, isFollowUp: true }]);
-      }
-    } else {
-      const nextStep = currentStep + 1;
-      if (nextStep < questions.length) {
-        setCurrentStep(nextStep);
-        setTimeout(() => setChatMessages(prev => [...prev, questions[nextStep]]), 1000);
-      } else if (values.education.hasInternships === 'yes' && values.education.internships.length === 0) {
-        setChatMessages(prev => [...prev, { text: "Please tell me about your internship details", isBot: true, field: "education.internships.0", inputType: "textarea", isArrayField: true, arrayFieldName: "education.internships" }]);
-      } else if (values.basicInfo.status === 'Working Professional' && (!values.workExperience?.experienceRecords.length)) {
-        setChatMessages(prev => [...prev, workExperienceQuestions[0]]);
-      } else {
-        setChatMessages(prev => [...prev, { text: "Great! All done. Ready to submit?", isBot: true }]);
-      }
+  const handleTextKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && textInput) {
+      handleInputChange(textInput);
+      handleNext();
     }
+  };
 
-    setUserInput('');
-    setIsLoading(false);
+  const renderCurrentQuestion = (): string => {
+    if (showAddMorePrompt) {
+      const currentSection = getCurrentSection();
+      return `Would you like to add another ${currentSection!.section.toLowerCase()} entry?`;
+    }
+    if (inArrayInput) {
+      const currentSection = sections.find(s => s.id === currentArraySectionId);
+      return currentSection!.questions[0].fields![currentFieldIndex].question;
+    }
+    return currentQuestion?.question || '';
+  };
+
+  const renderArrayInputField = () => {
+    const currentSection = sections.find(s => s.id === currentArraySectionId);
+    const currentField = currentSection!.questions[0].fields![currentFieldIndex];
+
+    switch (currentField.inputType) {
+      case 'text':
+        return (
+          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              value={textInput}
+              placeholder="Type your response"
+              className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
+              onChange={(e) => {
+                setTextInput(e.target.value);
+                handleInputChange(e.target.value);
+              }}
+              onKeyDown={handleTextKeyPress}
+            />
+            <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
+              <IoSend color="#155dfc" size={20} />
+            </button>
+          </div>
+        );
+      case 'textarea':
+        return (
+          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+            <textarea
+              ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+              value={textareaInput}
+              placeholder="Type your response"
+              className="w-full p-2 border rounded mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
+              onChange={(e) => {
+                setTextareaInput(e.target.value);
+                handleInputChange(e.target.value);
+              }}
+            />
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      case 'date':
+        return (
+          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              type="date"
+              value={dateInput}
+              className="w-full p-2 border rounded text-black mb-4 focus:outline-none focus:border-blue-500"
+              onChange={(e) => {
+                setDateInput(e.target.value);
+                handleInputChange(e.target.value);
+              }}
+            />
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderAddMorePrompt = () => (
+    <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+      <div className="flex justify-center gap-4 mb-4">
+        <button type="button" className="py-2 px-6 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors hover:cursor-pointer" onClick={() => handleAddMore(true)}>
+          Yes
+        </button>
+        <button type="button" className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={() => handleAddMore(false)}>
+          No
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderInputField = () => {
+    if (showAddMorePrompt) return renderAddMorePrompt();
+    if (inArrayInput) return renderArrayInputField();
+    if (!currentQuestion) return null;
+
+    switch (currentQuestion.inputType) {
+      case 'text':
+        return (
+          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              value={textInput}
+              placeholder="Type your response"
+              className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
+              onChange={(e) => {
+                setTextInput(e.target.value);
+                handleInputChange(e.target.value);
+              }}
+              onKeyDown={handleTextKeyPress}
+            />
+            <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
+              <IoSend color="#155dfc" size={20} />
+            </button>
+          </div>
+        );
+      case 'radio':
+        return (
+          <div className="flex flex-col w-full bg-white p-4 rounded-lg shadow-md">
+            <div className="flex flex-wrap gap-4 mb-4">
+              {currentQuestion.options?.map((option) => (
+                <label key={option} className="flex items-center space-x-2 cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="radio"
+                      name={currentQuestion.id}
+                      value={option}
+                      className="appearance-none w-5 h-5 rounded-full border-2 border-blue-500 checked:border-blue-500 checked:bg-white focus:outline-none cursor-pointer"
+                      onChange={(e) => handleInputChange(e.target.value)}
+                      checked={responses[currentQuestion.id] === option}
+                    />
+                    <div className="absolute inset-0 pointer-events-none rounded-full flex items-center justify-center transition-all text-white">
+                      {responses[currentQuestion.id] === option && (
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-black">{option}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      case 'checkbox':
+        return (
+          <div className="flex flex-col w-full bg-white p-4 rounded-lg shadow-md">
+            <div className="flex flex-wrap gap-4 mb-4">
+              {currentQuestion.options?.map((option) => (
+                <label key={option} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    value={option}
+                    className="w-5 h-5 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                    onChange={() => handleCheckboxChange(option)}
+                    checked={checkboxSelections.includes(option)}
+                  />
+                  <span className="text-black">{option}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      case 'date':
+        return (
+          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              type="date"
+              value={dateInput}
+              className="w-full p-2 border rounded text-black mb-4 focus:outline-none focus:border-blue-500"
+              onChange={(e) => {
+                setDateInput(e.target.value);
+                handleInputChange(e.target.value);
+              }}
+            />
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      case 'dropdown':
+        return (
+          <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
+            <Select
+              ref={inputRef as any}
+              options={currentQuestion.options?.map(option => ({ value: option, label: option }))}
+              onChange={(option) => {
+                setSelectedOption(option?.value || null);
+                handleInputChange(option?.value || null);
+              }}
+              value={selectedOption ? { value: selectedOption, label: selectedOption } : null}
+              className="mb-4"
+              placeholder="Select an option"
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  color: "black", // Text color in the dropdown input
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: "black", // Selected value color
+                }),
+                option: (provided) => ({
+                  ...provided,
+                  color: "black", // Option text color
+                })
+              }}
+
+            />
+            <div className="flex justify-end">
+              <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        );
+      case 'array':
+        return (
+          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+            <div className="flex-1 py-3 px-4 text-gray-500">{`Let's start with your ${getCurrentSection()!.section.toLowerCase()}`}</div>
+            <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
+              <IoSend color="#155dfc" size={20} />
+            </button>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#F2EFE7] flex flex-col">
       <Navbar />
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
-        <div
-          className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]"
-          ref={chatContainerRef}
-        >
-          {chatMessages.map((message, index) => (
-            <div key={index} className={`mb-4 ${message.isBot ? 'text-left' : 'text-right'}`}>
-              <div className={`inline-block p-3 rounded-lg ${message.isBot
-                ? 'bg-[#2973B2] text-white rounded-bl-none'
-                : 'bg-white text-black rounded-br-none'
-                } max-w-[80%] sm:max-w-[60%]`}>
-                {message.text}
-              </div>
-              {message.isBot && message.field && index === chatMessages.length - 1 && (
-                <div className="mt-2">
-                  <Formik
-                    initialValues={formData}
-                    validationSchema={validationSchema}
-                    onSubmit={(values, { setFieldValue }) => handleResponse(values, setFieldValue, userInput)}
-                    enableReinitialize
-                  >
-                    {({ values, setFieldValue }) => (
-                      <Form>
-                        {message.inputType === 'select' && (
-                          <div className="flex overflow-x-auto gap-2">
-                            {message.options?.map((option, idx) => (
-                              <div
-                                key={idx}
-                                className="min-w-[150px] bg-white p-3 rounded-lg cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleResponse(values, setFieldValue, option)}
-                              >
-                                <p className="text-black">{option}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {message.inputType === 'radio' && (
-                          <div className="flex overflow-x-auto gap-2">
-                            {message.options?.map((option, idx) => (
-                              <div
-                                key={idx}
-                                className="min-w-[150px] bg-white p-3 rounded-lg cursor-pointer hover:bg-gray-100"
-                                onClick={() => handleResponse(values, setFieldValue, option)}
-                              >
-                                <p className="text-black">{option}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </Form>
-                    )}
-                  </Formik>
+        <div className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
+          {chatMessages.map((message, idx) => (
+            <div key={idx}>
+              {message.type === "question" && (
+                <div className="mb-4 text-left">
+                  <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
+
+                  </div>
+                </div>
+              )}
+              {message.type === "answer" && (
+                <div className="mb-4 text-right">
+                  <div className="inline-block p-3 rounded-lg bg-white text-black rounded-br-none max-w-[80%] sm:max-w-[60%]">
+                    {message.content}
+                  </div>
+                </div>
+              )}
+              {message.type === "system" && (
+                <div className="mb-4 text-center">
+                  <div className="inline-block p-2 rounded-md bg-gray-200 text-gray-700 text-sm">
+                    {message.content}
+                  </div>
                 </div>
               )}
             </div>
           ))}
-        </div>
-        <Formik
-          initialValues={formData}
-          validationSchema={validationSchema}
-          onSubmit={(values, { setFieldValue }) => handleResponse(values, setFieldValue, userInput)}
-          enableReinitialize
-        >
-          {({ values }) => (
-            <Form className="sticky bottom-0 bg-transparent flex items-center gap-2">
-              <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
-                <input
-                  placeholder="Type your response"
-                  className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleResponse(values, () => { }, userInput)}
-                  disabled={isLoading || chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
-                />
-                <button
-                  onClick={() => handleResponse(values, () => { }, userInput)}
-                  type="submit"
-                  className="p-2 rounded-full hover:cursor-pointer transition-colors"
-                  disabled={isLoading || chatMessages[chatMessages.length - 1]?.inputType === 'select' || chatMessages[chatMessages.length - 1]?.inputType === 'radio'}
-                >
-                  <IoSend color='#155dfc' size={20} />
-                </button>
+
+          {!showAddMorePrompt && inArrayInput && (
+            <div className="mb-4 text-left">
+              <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
               </div>
-            </Form>
+            </div>
           )}
-        </Formik>
-        {chatMessages[chatMessages.length - 1]?.text === "Great! All done. Ready to submit?" && (
-          <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md flex justify-end w-full mt-2">
-            <button
-              type="button"
-              onClick={() => console.log('Final submission:', formData)}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Submit
-            </button>
-          </div>
-        )}
+
+          {!inArrayInput && currentQuestionIndex < allQuestions.length &&
+            !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
+              <div className="mb-4 text-left">
+                <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                </div>
+              </div>
+            )}
+
+          {showAddMorePrompt && (
+            <div className="mb-4 text-left">
+              <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                {renderCurrentQuestion()}
+              </div>
+            </div>
+          )}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        <div className="sticky bottom-0 bg-transparent flex items-center gap-2 mt-2">
+          {renderInputField()}
+        </div>
       </div>
     </div>
   );
-};
-
-export default Home;
+}
