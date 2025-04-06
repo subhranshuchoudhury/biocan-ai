@@ -287,14 +287,15 @@ export default function ChatPage() {
       if (inputRef.current) {
         inputRef.current.focus();
       }
-    }, 0);
+    }, 500);
   };
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (chatMessages.length > 1)
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // if (inputRef.current) {
+    //   inputRef.current.focus();
+    // }
   }, [responses, currentQuestionIndex, currentFieldIndex, inArrayInput, showAddMorePrompt]);
 
   useEffect(() => {
@@ -367,7 +368,7 @@ export default function ChatPage() {
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               value={textareaInput}
               placeholder="Type your response"
-              className="w-full p-2 border rounded mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
+              className="w-full p-2 border rounded text-black mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
               onChange={(e) => {
                 setTextareaInput(e.target.value);
                 handleInputChange(e.target.value);
@@ -525,6 +526,7 @@ export default function ChatPage() {
           <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
             <Select
               ref={inputRef as any}
+              defaultMenuIsOpen={true}
               options={currentQuestion.options?.map(option => ({ value: option, label: option }))}
               onChange={(option) => {
                 setSelectedOption(option?.value || null);
@@ -533,22 +535,23 @@ export default function ChatPage() {
               value={selectedOption ? { value: selectedOption, label: selectedOption } : null}
               className="mb-4"
               placeholder="Select an option"
+              menuPlacement="top" // 👈 Forces dropdown to open upward
               styles={{
                 control: (provided) => ({
                   ...provided,
-                  color: "black", // Text color in the dropdown input
+                  color: "black",
                 }),
                 singleValue: (provided) => ({
                   ...provided,
-                  color: "black", // Selected value color
+                  color: "black",
                 }),
                 option: (provided) => ({
                   ...provided,
-                  color: "black", // Option text color
-                })
+                  color: "black",
+                }),
               }}
-
             />
+
             <div className="flex justify-end">
               <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                 Next

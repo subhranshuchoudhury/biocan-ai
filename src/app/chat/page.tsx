@@ -265,7 +265,7 @@ export default function ChatPage() {
                 ...prev,
                 { type: "question", content: `Would you like to add another ${currentSection.section.toLowerCase()} entry?` },
                 { type: "answer", content: "Yes" },
-                { type: "system", content: `Let's fill in details for ${currentSection.section} Entry #${(entryCount[currentSection.id] || 0) + 1}` }
+                { type: "system", content: `Let's fill in details for ${currentSection.section}` }
             ]);
         } else {
             setChatMessages(prev => [
@@ -287,14 +287,15 @@ export default function ChatPage() {
             if (inputRef.current) {
                 inputRef.current.focus();
             }
-        }, 0);
+        }, 500);
     };
 
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
+        if (chatMessages.length > 1)
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        // if (inputRef.current) {
+        //   inputRef.current.focus();
+        // }
     }, [responses, currentQuestionIndex, currentFieldIndex, inArrayInput, showAddMorePrompt]);
 
     useEffect(() => {
@@ -367,7 +368,7 @@ export default function ChatPage() {
                             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
                             value={textareaInput}
                             placeholder="Type your response"
-                            className="w-full p-2 border rounded mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 border rounded text-black mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
                             onChange={(e) => {
                                 setTextareaInput(e.target.value);
                                 handleInputChange(e.target.value);
@@ -387,7 +388,7 @@ export default function ChatPage() {
                             ref={inputRef as React.RefObject<HTMLInputElement>}
                             type="date"
                             value={dateInput}
-                            className="w-full p-2 border rounded mb-4 focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 border rounded text-black mb-4 focus:outline-none focus:border-blue-500"
                             onChange={(e) => {
                                 setDateInput(e.target.value);
                                 handleInputChange(e.target.value);
@@ -408,10 +409,10 @@ export default function ChatPage() {
     const renderAddMorePrompt = () => (
         <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
             <div className="flex justify-center gap-4 mb-4">
-                <button type="button" className="py-2 px-6 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors" onClick={() => handleAddMore(true)}>
+                <button type="button" className="py-2 px-6 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors hover:cursor-pointer" onClick={() => handleAddMore(true)}>
                     Yes
                 </button>
-                <button type="button" className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={() => handleAddMore(false)}>
+                <button type="button" className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={() => handleAddMore(false)}>
                     No
                 </button>
             </div>
@@ -449,16 +450,16 @@ export default function ChatPage() {
                         <div className="flex flex-wrap gap-4 mb-4">
                             {currentQuestion.options?.map((option) => (
                                 <label key={option} className="flex items-center space-x-2 cursor-pointer">
-                                    <div className="relative">
+                                    <div className="relative w-5 h-5">
                                         <input
                                             type="radio"
                                             name={currentQuestion.id}
                                             value={option}
-                                            className="appearance-none w-5 h-5 rounded-full border-2 border-blue-500 checked:border-blue-500 checked:bg-white focus:outline-none cursor-pointer"
+                                            className="appearance-none w-full h-full rounded-full border-2 border-blue-500 checked:border-blue-500 checked:bg-white focus:outline-none cursor-pointer leading-none"
                                             onChange={(e) => handleInputChange(e.target.value)}
                                             checked={responses[currentQuestion.id] === option}
                                         />
-                                        <div className="absolute inset-0 pointer-events-none rounded-full flex items-center justify-center transition-all text-white">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                             {responses[currentQuestion.id] === option && (
                                                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                                             )}
@@ -466,6 +467,7 @@ export default function ChatPage() {
                                     </div>
                                     <span className="text-black">{option}</span>
                                 </label>
+
                             ))}
                         </div>
                         <div className="flex justify-end">
@@ -506,7 +508,7 @@ export default function ChatPage() {
                             ref={inputRef as React.RefObject<HTMLInputElement>}
                             type="date"
                             value={dateInput}
-                            className="w-full p-2 border rounded mb-4 focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 border rounded text-black mb-4 focus:outline-none focus:border-blue-500"
                             onChange={(e) => {
                                 setDateInput(e.target.value);
                                 handleInputChange(e.target.value);
@@ -524,6 +526,7 @@ export default function ChatPage() {
                     <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
                         <Select
                             ref={inputRef as any}
+                            defaultMenuIsOpen={true}
                             options={currentQuestion.options?.map(option => ({ value: option, label: option }))}
                             onChange={(option) => {
                                 setSelectedOption(option?.value || null);
@@ -532,7 +535,23 @@ export default function ChatPage() {
                             value={selectedOption ? { value: selectedOption, label: selectedOption } : null}
                             className="mb-4"
                             placeholder="Select an option"
+                            menuPlacement="top" // 👈 Forces dropdown to open upward
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    color: "black",
+                                }),
+                                singleValue: (provided) => ({
+                                    ...provided,
+                                    color: "black",
+                                }),
+                                option: (provided) => ({
+                                    ...provided,
+                                    color: "black",
+                                }),
+                            }}
                         />
+
                         <div className="flex justify-end">
                             <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer" onClick={handleNext}>
                                 Next
@@ -588,8 +607,8 @@ export default function ChatPage() {
 
                     {!showAddMorePrompt && inArrayInput && (
                         <div className="mb-4 text-left">
-                            <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                {sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question}
+                            <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
                             </div>
                         </div>
                     )}
@@ -597,8 +616,7 @@ export default function ChatPage() {
                     {!inArrayInput && currentQuestionIndex < allQuestions.length &&
                         !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
                             <div className="mb-4 text-left">
-                                <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                    {currentQuestion?.question}
+                                <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
                                 </div>
                             </div>
                         )}
