@@ -7,10 +7,7 @@ import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
 import { IoSend } from "react-icons/io5";
 import Select from 'react-select';
-import { DataEntry, Question, Section } from "types/chat";
-
-
-
+import { Question, Section } from "types/chat";
 
 
 interface ChatMessage {
@@ -42,6 +39,7 @@ export default function ChatPage() {
   const [currentArraySectionId, setCurrentArraySectionId] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
+  const [IsReportAvailable, setIsReportAvailable] = useState(false)
 
   const getVisibleSections = (): Section[] => {
     return sections.filter(section => {
@@ -376,7 +374,7 @@ export default function ChatPage() {
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               value={textInput}
-              placeholder="Type your response"
+              placeholder="Type your message"
               className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
               onChange={(e) => {
                 setTextInput(e.target.value);
@@ -395,7 +393,7 @@ export default function ChatPage() {
             <textarea
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               value={textareaInput}
-              placeholder="Type your response"
+              placeholder="Type your message"
               className="w-full p-2 border rounded text-black mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
               onChange={(e) => {
                 setTextareaInput(e.target.value);
@@ -461,7 +459,7 @@ export default function ChatPage() {
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               value={textInput}
-              placeholder="Type your response"
+              placeholder="Type your message"
               className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
               onChange={(e) => {
                 setTextInput(e.target.value);
@@ -611,64 +609,78 @@ export default function ChatPage() {
         <Navbar />
       </div>
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
-        <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
-          {chatMessages.map((message, idx) => (
-            <div key={idx}>
-              {message.type === "question" && (
-                <div className="mb-4 text-left">
-                  <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+        {
+          !IsReportAvailable ? <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
 
 
+            {chatMessages.map((message, idx) => (
+              <div key={idx}>
+                {message.type === "question" && (
+                  <div className="mb-4 text-left">
+                    <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
+
+                    </div>
                   </div>
-                </div>
-              )}
-              {message.type === "answer" && (
-                <div className="mb-4 text-right">
-                  <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-br-none max-w-[80%] sm:max-w-[60%]">
-                    {message.content}
+                )}
+                {message.type === "answer" && (
+                  <div className="mb-4 text-right">
+                    <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-br-none max-w-[80%] sm:max-w-[60%]">
+                      {message.content}
+                    </div>
                   </div>
-                </div>
-              )}
-              {message.type === "system" && (
-                <div className="mb-4 text-center">
-                  <div className="inline-block p-2 rounded-md bg-gray-200 text-gray-700 text-sm">
-                    {message.content}
+                )}
+                {message.type === "system" && (
+                  <div className="mb-4 text-center">
+                    <div className="inline-block p-2 rounded-md bg-gray-200 text-gray-700 text-sm">
+                      {message.content}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-
-          {!showAddMorePrompt && inArrayInput && (
-            <div className="mb-4 text-left">
-              <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-
+                )}
               </div>
-            </div>
-          )}
+            ))}
 
-          {!inArrayInput && currentQuestionIndex < allQuestions.length &&
-            !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
+            {!showAddMorePrompt && inArrayInput && (
               <div className="mb-4 text-left">
-                <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+
                 </div>
               </div>
             )}
 
-          {showAddMorePrompt && (
-            <div className="mb-4 text-left">
-              <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                {renderCurrentQuestion()}
-              </div>
-            </div>
-          )}
+            {!inArrayInput && currentQuestionIndex < allQuestions.length &&
+              !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
+                <div className="mb-4 text-left">
+                  <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                  </div>
+                </div>
+              )}
 
-          <div ref={chatEndRef} />
-        </div>
+            {showAddMorePrompt && (
+              <div className="mb-4 text-left">
+                <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                  {renderCurrentQuestion()}
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
+          </div> : <div className="flex-1 bg-[#F3F3F3] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
+            <p className="text-black font-bold text-xl">Assessment Report</p>
+          </div>
+        }
+
 
       </div>
       <div className="sticky bottom-0 bg-transparent flex items-center gap-2 m-2">
-        {renderInputField()}
+        {
+          IsReportAvailable ? <div className="flex justify-center items-center w-full">
+            <button className="text-black">
+              Show Jobs button
+            </button>
+          </div> : renderInputField()
+        }
+
       </div>
     </div>
   );
