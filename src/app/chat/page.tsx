@@ -29,6 +29,7 @@ const sections: Section[] = [
             { id: "S1QID2", question: "What is your gender?", inputType: "radio", options: ["Male", "Female", "Other"] },
             { id: "S1QID3", question: "What is your dob?", inputType: "date" },
             { id: "S1QID4", question: "What is your city name?", inputType: "dropdown", options: ["City-1", "City-2"] },
+            { id: "S1QID5", question: "Which languages do you speak?", inputType: "checkbox", options: ["English", "Spanish", "French", "German"] },
         ]
     },
     {
@@ -44,7 +45,7 @@ const sections: Section[] = [
             { id: "A1QID7", question: "Are you currently pursuing further education?", inputType: "radio", options: ["Yes", "No"] },
             { id: "A1QID8", question: "What was your favorite subject during your studies?", inputType: "text" },
             { id: "A1QID9", question: "What was the biggest challenge you faced during your education?", inputType: "text" },
-            { id: "A1QID10", question: "Do you have any academic publications or projects you'd like to share?", inputType: "text" },
+            { id: "A1QID10", question: "Which skills did you gain during your studies?", inputType: "checkbox", options: ["Programming", "Research", "Teamwork", "Leadership", "Communication"] },
         ]
     },
     {
@@ -67,19 +68,37 @@ const sections: Section[] = [
             }
         ]
     },
-
+    {
+        id: "SEC4",
+        section: "Volunteer Experience",
+        showOnlyWhen: { "A1QID5": "Yes" },
+        questions: [
+            {
+                id: "V1QID1",
+                question: "Volunteer experience",
+                inputType: "array",
+                fields: [
+                    { id: "RoleID", question: "Volunteer Role", inputType: "text" },
+                    { id: "OrgID", question: "Organization Name", inputType: "text" },
+                    { id: "DurationID", question: "Duration", inputType: "text" },
+                    { id: "TasksID", question: "Main Tasks", inputType: "textarea" }
+                ]
+            }
+        ]
+    }
 ];
 
 interface ChatMessage {
     type: string;
     content: string;
-    isEmploymentField?: boolean;
-    isEmploymentSection?: boolean;
+    sectionId?: string;
+    isArrayField?: boolean;
     entryNumber?: number;
 }
 
-interface EmploymentEntry {
+interface ArrayEntry {
     [key: string]: string;
+    sectionId: string;
 }
 
 export default function ChatPage() {
@@ -89,15 +108,16 @@ export default function ChatPage() {
     const [textareaInput, setTextareaInput] = useState<string>('');
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [dateInput, setDateInput] = useState<string>('');
-    const [employmentEntries, setEmploymentEntries] = useState<EmploymentEntry[]>([]);
-    const [currentEmploymentEntry, setCurrentEmploymentEntry] = useState<EmploymentEntry>({});
+    const [checkboxSelections, setCheckboxSelections] = useState<string[]>([]);
+    const [arrayEntries, setArrayEntries] = useState<{ [sectionId: string]: ArrayEntry[] }>({});
+    const [currentArrayEntry, setCurrentArrayEntry] = useState<ArrayEntry>({ sectionId: '' });
     const [currentFieldIndex, setCurrentFieldIndex] = useState<number>(0);
     const [showAddMorePrompt, setShowAddMorePrompt] = useState<boolean>(false);
     const [inArrayInput, setInArrayInput] = useState<boolean>(false);
+    const [currentArraySectionId, setCurrentArraySectionId] = useState<string>('');
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-    const [entryCount, setEntryCount] = useState<number>(0);
+    const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
 
-    // Filter sections based on conditions
     const getVisibleSections = (): Section[] => {
         return sections.filter(section => {
             if (!section.showOnlyWhen) return true;
@@ -112,22 +132,41 @@ export default function ChatPage() {
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
+    const getCurrentSection = (): Section | undefined => {
+        return getVisibleSections().find(section =>
+            section.questions.some(q => q.id === currentQuestion?.id)
+        );
+    };
+
     const handleInputChange = (value: any) => {
         if (inArrayInput) {
-            setCurrentEmploymentEntry(prev => ({
+            setCurrentArrayEntry(prev => ({
                 ...prev,
-                [sections.find(s => s.id === "SEC3")!.questions[0].fields![currentFieldIndex].id]: value
+                [getCurrentSection()!.questions[0].fields![currentFieldIndex].id]: value
             }));
+        } else if (currentQuestion?.inputType === 'checkbox') {
+            setCheckboxSelections(value);
         } else {
             setResponses({ ...responses, [currentQuestion!.id]: value });
         }
     };
 
+    const handleCheckboxChange = (option: string) => {
+        setCheckboxSelections(prev => {
+            if (prev.includes(option)) {
+                return prev.filter(item => item !== option);
+            } else {
+                return [...prev, option];
+            }
+        });
+    };
+
     const handleNext = () => {
         let value: any;
+        const currentSection = getCurrentSection();
 
         if (inArrayInput) {
-            const currentField = sections.find(s => s.id === "SEC3")!.questions[0].fields![currentFieldIndex];
+            const currentField = currentSection!.questions[0].fields![currentFieldIndex];
 
             switch (currentField.inputType) {
                 case 'text':
@@ -149,24 +188,25 @@ export default function ChatPage() {
             }
 
             const updatedEntry = {
-                ...currentEmploymentEntry,
-                [currentField.id]: value
+                ...currentArrayEntry,
+                [currentField.id]: value,
+                sectionId: currentSection!.id
             };
-            setCurrentEmploymentEntry(updatedEntry);
+            setCurrentArrayEntry(updatedEntry);
 
             setChatMessages(prev => [
                 ...prev,
                 {
                     type: "question",
                     content: currentField.question,
-                    isEmploymentField: true,
-                    entryNumber: entryCount
+                    sectionId: currentSection!.id,
+                    isArrayField: true,
+                    entryNumber: entryCount[currentSection!.id] || 1
                 },
                 {
                     type: "answer",
                     content: value,
-                    isEmploymentField: true,
-                    entryNumber: entryCount
+                    sectionId: currentSection!.id
                 }
             ]);
 
@@ -174,16 +214,20 @@ export default function ChatPage() {
             setTextareaInput('');
             setDateInput('');
 
-            if (currentFieldIndex < sections.find(s => s.id === "SEC3")!.questions[0].fields!.length - 1) {
+            if (currentFieldIndex < currentSection!.questions[0].fields!.length - 1) {
                 setCurrentFieldIndex(currentFieldIndex + 1);
             } else {
-                const updatedEntries = [...employmentEntries, updatedEntry];
-                setEmploymentEntries(updatedEntries);
-                setResponses({
-                    ...responses,
-                    [sections.find(s => s.id === "SEC3")!.questions[0].id]: updatedEntries
-                });
-                setCurrentEmploymentEntry({});
+                const sectionEntries = arrayEntries[currentSection!.id] || [];
+                const updatedEntries = [...sectionEntries, updatedEntry];
+                setArrayEntries(prev => ({
+                    ...prev,
+                    [currentSection!.id]: updatedEntries
+                }));
+                setResponses(prev => ({
+                    ...prev,
+                    [currentSection!.questions[0].id]: updatedEntries
+                }));
+                setCurrentArrayEntry({ sectionId: '' });
                 setCurrentFieldIndex(0);
                 setShowAddMorePrompt(true);
             }
@@ -201,18 +245,26 @@ export default function ChatPage() {
                 case 'radio':
                     value = responses[currentQuestion!.id];
                     break;
+                case 'checkbox':
+                    value = checkboxSelections;
+                    break;
                 case 'array':
                     setInArrayInput(true);
+                    setCurrentArraySectionId(currentSection!.id);
+                    setEntryCount(prev => ({
+                        ...prev,
+                        [currentSection!.id]: (prev[currentSection!.id] || 0) + 1
+                    }));
                     setChatMessages(prev => [
                         ...prev,
                         {
                             type: "question",
                             content: currentQuestion!.question,
-                            isEmploymentSection: true
+                            sectionId: currentSection!.id
                         },
                         {
                             type: "system",
-                            content: "Let's fill in details for Employment Entry #1"
+                            content: `Let's fill in details for ${currentSection!.section} Entry #1`
                         }
                     ]);
                     return;
@@ -220,7 +272,7 @@ export default function ChatPage() {
                     value = '';
             }
 
-            if (!value) {
+            if (!value || (Array.isArray(value) && value.length === 0)) {
                 alert('Please answer the question.');
                 return;
             }
@@ -228,12 +280,21 @@ export default function ChatPage() {
             setChatMessages(prev => [
                 ...prev,
                 { type: "question", content: currentQuestion!.question },
-                { type: "answer", content: value }
+                {
+                    type: "answer",
+                    content: Array.isArray(value) ? value.join(', ') : value
+                }
             ]);
+
+            setResponses(prev => ({
+                ...prev,
+                [currentQuestion!.id]: value
+            }));
 
             setTextInput('');
             setSelectedOption(null);
             setDateInput('');
+            setCheckboxSelections([]);
 
             if (currentQuestionIndex < allQuestions.length - 1) {
                 setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -250,25 +311,30 @@ export default function ChatPage() {
         }, 0);
     };
 
-    const handleAddMoreEmployment = (addMore: boolean) => {
+    const handleAddMore = (addMore: boolean) => {
+        const currentSection = getCurrentSection()!;
         setShowAddMorePrompt(false);
 
         if (addMore) {
             setInArrayInput(true);
-            setEntryCount(entryCount + 1);
+            setEntryCount(prev => ({
+                ...prev,
+                [currentSection.id]: (prev[currentSection.id] || 0) + 1
+            }));
             setChatMessages(prev => [
                 ...prev,
-                { type: "question", content: "Would you like to add another employment entry?" },
+                { type: "question", content: `Would you like to add another ${currentSection.section.toLowerCase()} entry?` },
                 { type: "answer", content: "Yes" },
-                { type: "system", content: `Let's fill in details for Employment Entry #${entryCount + 1}` }
+                { type: "system", content: `Let's fill in details for ${currentSection.section} Entry #${(entryCount[currentSection.id] || 0) + 1}` }
             ]);
         } else {
             setChatMessages(prev => [
                 ...prev,
-                { type: "question", content: "Would you like to add another employment entry?" },
+                { type: "question", content: `Would you like to add another ${currentSection.section.toLowerCase()} entry?` },
                 { type: "answer", content: "No" }
             ]);
             setInArrayInput(false);
+            setCurrentArraySectionId('');
             if (currentQuestionIndex < allQuestions.length - 1) {
                 setCurrentQuestionIndex(currentQuestionIndex + 1);
             } else {
@@ -298,7 +364,10 @@ export default function ChatPage() {
                 const q = allQuestions[i];
                 initialMessages.push({ type: "question", content: q.question });
                 if (responses[q.id]) {
-                    initialMessages.push({ type: "answer", content: responses[q.id] });
+                    initialMessages.push({
+                        type: "answer",
+                        content: Array.isArray(responses[q.id]) ? responses[q.id].join(', ') : responses[q.id]
+                    });
                 }
             }
             if (!inArrayInput && currentQuestionIndex < allQuestions.length) {
@@ -306,7 +375,7 @@ export default function ChatPage() {
             }
             setChatMessages(initialMessages);
         }
-    }, [responses]); // Update when responses change to reflect section visibility
+    }, [responses]);
 
     const handleTextKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && textInput) {
@@ -316,13 +385,20 @@ export default function ChatPage() {
     };
 
     const renderCurrentQuestion = (): string => {
-        if (showAddMorePrompt) return "Would you like to add another employment entry?";
-        if (inArrayInput) return sections.find(s => s.id === "SEC3")!.questions[0].fields![currentFieldIndex].question;
+        if (showAddMorePrompt) {
+            const currentSection = getCurrentSection();
+            return `Would you like to add another ${currentSection!.section.toLowerCase()} entry?`;
+        }
+        if (inArrayInput) {
+            const currentSection = sections.find(s => s.id === currentArraySectionId);
+            return currentSection!.questions[0].fields![currentFieldIndex].question;
+        }
         return currentQuestion?.question || '';
     };
 
     const renderArrayInputField = () => {
-        const currentField = sections.find(s => s.id === "SEC3")!.questions[0].fields![currentFieldIndex];
+        const currentSection = sections.find(s => s.id === currentArraySectionId);
+        const currentField = currentSection!.questions[0].fields![currentFieldIndex];
 
         switch (currentField.inputType) {
             case 'text':
@@ -392,10 +468,10 @@ export default function ChatPage() {
     const renderAddMorePrompt = () => (
         <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
             <div className="flex justify-center gap-4 mb-4">
-                <button type="button" className="py-2 px-6 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors" onClick={() => handleAddMoreEmployment(true)}>
+                <button type="button" className="py-2 px-6 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors" onClick={() => handleAddMore(true)}>
                     Yes
                 </button>
-                <button type="button" className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={() => handleAddMoreEmployment(false)}>
+                <button type="button" className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={() => handleAddMore(false)}>
                     No
                 </button>
             </div>
@@ -459,6 +535,30 @@ export default function ChatPage() {
                         </div>
                     </div>
                 );
+            case 'checkbox':
+                return (
+                    <div className="flex flex-col w-full bg-white p-4 rounded-lg shadow-md">
+                        <div className="flex flex-wrap gap-4 mb-4">
+                            {currentQuestion.options?.map((option) => (
+                                <label key={option} className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        value={option}
+                                        className="w-5 h-5 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                                        onChange={() => handleCheckboxChange(option)}
+                                        checked={checkboxSelections.includes(option)}
+                                    />
+                                    <span className="text-black">{option}</span>
+                                </label>
+                            ))}
+                        </div>
+                        <div className="flex justify-end">
+                            <button type="button" className="py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors" onClick={handleNext}>
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                );
             case 'date':
                 return (
                     <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
@@ -503,7 +603,7 @@ export default function ChatPage() {
             case 'array':
                 return (
                     <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
-                        <div className="flex-1 py-3 px-4 text-gray-500">Let's start with your employment history</div>
+                        <div className="flex-1 py-3 px-4 text-gray-500">{`Let's start with your ${getCurrentSection()!.section.toLowerCase()}`}</div>
                         <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
                             <IoSend color="#155dfc" size={20} />
                         </button>
@@ -548,7 +648,7 @@ export default function ChatPage() {
                     {!showAddMorePrompt && inArrayInput && (
                         <div className="mb-4 text-left">
                             <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                {sections.find(s => s.id === "SEC3")!.questions[0].fields![currentFieldIndex].question}
+                                {sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question}
                             </div>
                         </div>
                     )}
@@ -565,7 +665,7 @@ export default function ChatPage() {
                     {showAddMorePrompt && (
                         <div className="mb-4 text-left">
                             <div className="inline-block p-3 rounded-lg bg-[#2973B2] text-white rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                Would you like to add another employment entry?
+                                {renderCurrentQuestion()}
                             </div>
                         </div>
                     )}
