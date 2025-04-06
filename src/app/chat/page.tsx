@@ -575,7 +575,9 @@ export default function ChatPage() {
 
     return (
         <div className="min-h-screen bg-[#F2EFE7] flex flex-col">
-            <Navbar />
+            <div className="sticky top-0">
+                <Navbar />
+            </div>
             <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
                 <div className="flex-1 bg-[#f5f5f5] rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
                     {chatMessages.map((message, idx) => (
