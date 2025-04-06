@@ -27,11 +27,11 @@ export const sections: Section[] = [
     },
     {
         id: "SEC2_1",
-        section: "Academic Records",
+        section: `Academic Records`,
         questions: [
             {
                 id: "A1QID3",
-                question: "Academic Records",
+                question: `Academic Records</br><i style="color: white; font-size: 12px">Press Enter/Send button to start the chat.</i>`,
                 inputType: "array",
                 fields: [
                     { id: "CollegeID", question: "Current / Last College", inputType: "text" },
@@ -46,14 +46,16 @@ export const sections: Section[] = [
         id: "SEC2_2",
         section: "Extra Course Information",
         questions: [
-            { id: "A1QID4", question: "Lets fill your extra course information.", inputType: "array", fields: [{ id: "CourseID", question: "Please enter your course name.</br>Fill N/A If you have not done any extra course.", inputType: "text" }] },
+            {
+                id: "A1QID4", question: `Lets fill your extra course information. </br><i style="color: white; font-size: 12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "CourseID", question: `<b>What was your course name?</b> </br> <i style="color:white;font-size:12px">Type N/A if not applied to you.</i>`, inputType: "text" }]
+            },
         ]
     },
     {
         id: "SEC2_2_1",
         section: "Extracurricular Information",
         questions: [
-            { id: "A1QID5", question: "Lets fill your extracurricular activities.", inputType: "array", fields: [{ id: "ActivityID", question: "Activity Name", inputType: "text" }] },
+            { id: "A1QID5", question: `Lets fill your extracurricular activities.</br><i style="color:white;font-size:12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "ActivityID", question: "Activity Name", inputType: "text" }] },
         ]
     },
     {
@@ -63,7 +65,7 @@ export const sections: Section[] = [
         questions: [
             {
                 id: "I1Q1D1",
-                question: `<b>Internship information</b> </br> <i style={{ color: "red" }}>Press Enter/Send button to start the chat.</i>`,
+                question: `<b>Internship information</b> </br><i style="color:white;font-size:12px">Press Enter/Send button to start the chat.</i>`,
                 inputType: "array",
                 fields: [{ id: "InternshipID", question: "Internship Description", inputType: "textarea" }]
             }
