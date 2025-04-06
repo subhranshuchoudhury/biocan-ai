@@ -970,7 +970,7 @@ export const sections: Section[] = [
             {
                 "id": "S7BFQ58",
                 "inputType": "radio",
-                "question": "I get irritated easily when things don’t go my way.",
+                "question": "I get irritated easily when things don't go my way.",
                 "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
             },
             {
