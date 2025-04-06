@@ -449,16 +449,16 @@ export default function ChatPage() {
             <div className="flex flex-wrap gap-4 mb-4">
               {currentQuestion.options?.map((option) => (
                 <label key={option} className="flex items-center space-x-2 cursor-pointer">
-                  <div className="relative">
+                  <div className="relative w-5 h-5">
                     <input
                       type="radio"
                       name={currentQuestion.id}
                       value={option}
-                      className="appearance-none w-5 h-5 rounded-full border-2 border-blue-500 checked:border-blue-500 checked:bg-white focus:outline-none cursor-pointer"
+                      className="appearance-none w-full h-full rounded-full border-2 border-blue-500 checked:border-blue-500 checked:bg-white focus:outline-none cursor-pointer leading-none"
                       onChange={(e) => handleInputChange(e.target.value)}
                       checked={responses[currentQuestion.id] === option}
                     />
-                    <div className="absolute inset-0 pointer-events-none rounded-full flex items-center justify-center transition-all text-white">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       {responses[currentQuestion.id] === option && (
                         <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       )}
@@ -466,6 +466,7 @@ export default function ChatPage() {
                   </div>
                   <span className="text-black">{option}</span>
                 </label>
+
               ))}
             </div>
             <div className="flex justify-end">
