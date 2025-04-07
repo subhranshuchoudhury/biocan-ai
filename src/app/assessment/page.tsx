@@ -53,24 +53,24 @@ export default function ChatPage() {
   const router = useRouter();
 
 
-  useEffect(() => {
-    const checkUserReport = async () => {
-      if (!user?.uid) return; // Exit if no user
+  // useEffect(() => {
+  //   const checkUserReport = async () => {
+  //     if (!user?.uid) return; // Exit if no user
 
-      try {
-        const reportRef = doc(db, "reports", user.uid);
-        const reportSnap = await getDoc(reportRef);
+  //     try {
+  //       const reportRef = doc(db, "reports", user.uid);
+  //       const reportSnap = await getDoc(reportRef);
 
-        if (reportSnap.exists()) {
-          router.replace('/report')
-        }
-      } catch (error) {
-        console.error("Error checking report:", error);
-      }
-    };
+  //       if (reportSnap.exists()) {
+  //         router.replace('/report')
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking report:", error);
+  //     }
+  //   };
 
-    checkUserReport();
-  }, [user, router]);
+  //   checkUserReport();
+  // }, [user, router]);
 
 
   const getVisibleSections = (): Section[] => {

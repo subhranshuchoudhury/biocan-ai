@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     }
 
     if (token && isPublicPath) {
-        const dashboardUrl = new URL('/home', request.url)
+        const dashboardUrl = new URL('/assessment', request.url)
         return NextResponse.redirect(dashboardUrl)
     }
 

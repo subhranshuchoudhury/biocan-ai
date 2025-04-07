@@ -1,25 +1,28 @@
 // pages/signin.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { auth, provider } from '@/configs';
 import { signInWithPopup } from 'firebase/auth';
 import BiocanLogo from 'public/assets/biocan-logo.svg';
 import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation'; // For redirection
+import { useAuth } from '@/providers';
 
 const SignInPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+
 
   const login = async () => {
     setIsLoading(true);
     setError(null);
     try {
       await signInWithPopup(auth, provider);
-      // If login is successful, redirect to /home
-      router.replace('/home');
+      // If login is successful, redirect to /assessment
+      router.replace('/assessment');
     } catch (error: any) {
       console.error("Signin error:", error);
       setError(error.message || "An error occurred during sign-in. Please try again.");
@@ -27,6 +30,15 @@ const SignInPage = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+
+    if (user?.uid) {
+      router.replace("/assessment")
+    }
+
+  }, [user])
+
 
   return (
     <div className="flex h-screen min-h-dvh w-full flex-col items-center justify-between gap-4 bg-[linear-gradient(180deg,#13234D_0%,#3A3DD4_43.5%,#142145_100%)] px-4 py-28 text-center text-[#EBE3E3]">

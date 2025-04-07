@@ -112,11 +112,11 @@ export default function ReportPage() {
                 if (reportSnap.exists()) {
                     setData(reportSnap.data().apiResponse as ReportData);
                 } else {
-                    // router.push('/home');
+                    // router.push('/assessment');
                 }
             } catch (error) {
                 console.error("Error fetching report:", error);
-                router.push('/home');
+                router.push('/assessment');
             } finally {
                 setIsLoading(false);
             }
@@ -209,7 +209,7 @@ export default function ReportPage() {
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">Big Five Traits</h2>
-                    <div className="max-w-2xl mx-auto">
+                    <div className="max-w-2xl mx-auto flex justify-center">
                         {
                             //@ts-ignore
                             <Radar data={bigFiveChartData} options={chartOptions} />

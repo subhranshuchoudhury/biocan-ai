@@ -1,18 +1,19 @@
 // components/Navbar.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { FaEnvelope, FaFileAlt, FaLock, FaSignOutAlt } from 'react-icons/fa';
 import BiocanLogoBlue from 'public/assets/biocan-logo-blue.png';
 import HamBurgerMenu from 'public/assets/hamburger.svg';
 import BioCanLogoBlackWhite from 'public/assets/biocan-black-white-logo.svg';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/configs'; // Assuming you have Firebase auth configured
-import { useRouter } from 'next/navigation';
+import { auth, db } from '@/configs'; // Assuming you have Firebase auth configured
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers';
 import Select from 'react-select';
 import { IoChevronBackCircleOutline } from "react-icons/io5";
+import { doc, getDoc } from 'firebase/firestore';
 const Navbar: React.FC<{
     assessmentOptions?: { value: string; label: string }[];
     onAssessmentChange?: (selectedOption: { value: string; label: string } | null) => void;
@@ -30,8 +31,43 @@ const Navbar: React.FC<{
 }) => {
         const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
         const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+        const [SelectOption, setSelectOption] = useState(assessmentOptions)
         const { user } = useAuth();
         const router = useRouter();
+        const pathName = usePathname()
+
+        useEffect(() => {
+            const checkUserReport = async () => {
+                if (!user?.uid) {
+                    return;
+                }
+                try {
+                    const reportRef = doc(db, "reports", user.uid);
+                    const reportSnap = await getDoc(reportRef);
+
+                    if (reportSnap.exists()) {
+                        setSelectOption([
+                            { label: 'Assessment', value: 'assessment' },
+                            { label: 'Roadmap', value: 'roadmap' },
+                            { label: 'BioCanAi', value: 'biocanai' },
+                        ]);
+
+                        if (pathName.includes('assessment')) {
+                            router.replace('/report')
+                        }
+                    } else {
+                        setSelectOption([
+                            { label: 'Assessment', value: 'assessment' },
+                        ]);
+                    }
+                } catch (error) {
+                    console.error("Error fetching report:", error);
+                    // router.push('/assessment');
+                }
+            };
+            checkUserReport();
+        }, [user, router]);
+
 
         const handleTogglePopup = () => {
             setIsPopupOpen((prev) => !prev);
@@ -53,6 +89,9 @@ const Navbar: React.FC<{
         };
 
         const handleAssessmentSelect = (selectedOption: { value: string; label: string } | null) => {
+
+            router.replace(selectedOption?.value || "")
+
             if (onAssessmentChange) {
                 onAssessmentChange(selectedOption);
             }
@@ -86,7 +125,7 @@ const Navbar: React.FC<{
                         <div className="relative w-48">
                             <Select
                                 instanceId="navbar_dropdown"
-                                options={assessmentOptions}
+                                options={SelectOption}
                                 onChange={handleAssessmentSelect}
                                 defaultValue={defaultAssessmentValue}
                                 placeholder="Assessments"
