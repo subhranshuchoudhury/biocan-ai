@@ -1,8 +1,8 @@
 'use client';
 
 import Navbar from "@/components/navbar";
-import { useState } from "react";
-import { Radar } from "react-chartjs-2"; // Replace Bar with Radar
+import { useEffect, useState } from "react";
+import { Radar } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -11,12 +11,15 @@ import {
     Title,
     Tooltip,
     Legend,
-    RadialLinearScale, // Add for radar chart
-    PointElement,      // Add for radar chart
-    LineElement        // Add for radar chart
+    RadialLinearScale,
+    PointElement,
+    LineElement
 } from "chart.js";
+import { useAuth } from "@/providers";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/configs";
+import { useRouter } from "next/navigation"; // Add router for redirection
 
-// Register ChartJS components, including radar-specific ones
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -24,12 +27,12 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
-    RadialLinearScale, // Required for radar chart
-    PointElement,      // Required for radar chart
-    LineElement        // Required for radar chart
+    RadialLinearScale,
+    PointElement,
+    LineElement
 );
 
-// Define interfaces for the data structure
+// Define interfaces
 interface MBTITraits {
     Energy: string;
     Information: string;
@@ -74,106 +77,69 @@ interface ReportData {
     career_aspects: CareerAspect[];
 }
 
-export default function ReportPage() {
-    // Default data with type assertion
-    const [data] = useState<ReportData>({
-        "mbti": {
-            "type": "ENTP",
-            "traits": {
-                "Energy": "Extraversion (E)",
-                "Information": "Intuition (N)",
-                "Decisions": "Thinking (T)",
-                "Structure": "Perceiving (P)"
-            },
-            "description": "ENTPs are known for their innovative and entrepreneurial spirit, often generating new ideas and exploring possibilities. They are charismatic and adaptable, with a passion for learning and discussing complex concepts."
-        },
-        "strengths": [
-            {
-                "point": "Strategic Thinking",
-                "description": "ENTPs have the ability to think critically and strategically, often finding creative solutions to complex problems."
-            },
-            {
-                "point": "Effective Communication",
-                "description": "ENTPs are skilled communicators, able to articulate their ideas and thoughts in a clear and engaging manner."
-            },
-            {
-                "point": "Adaptability",
-                "description": "ENTPs are highly adaptable, able to adjust to new situations and challenges with ease."
-            },
-            {
-                "point": "Innovative Problem-Solving",
-                "description": "ENTPs are known for their innovative approach to problem-solving, often finding unique and effective solutions."
-            },
-            {
-                "point": "Charisma",
-                "description": "ENTPs have a natural charm and charisma, able to inspire and motivate others with their enthusiasm and passion."
-            }
-        ],
-        "weaknesses": [
-            {
-                "point": "Disorganization",
-                "description": "ENTPs often struggle with organization and planning, preferring to focus on the big picture rather than the details."
-            },
-            {
-                "point": "Impatience",
-                "description": "ENTPs can be impatient, often becoming bored or restless if they are not challenged or stimulated."
-            },
-            {
-                "point": "Overthinking",
-                "description": "ENTPs can overthink and analyze situations, sometimes leading to indecision and inaction."
-            },
-            {
-                "point": "Insensitivity",
-                "description": "ENTPs can be insensitive to the feelings and needs of others, prioritizing their own ideas and interests."
-            },
-            {
-                "point": "Restlessness",
-                "description": "ENTPs can be restless and easily distracted, often moving from one project or idea to another without completing the previous one."
-            }
-        ],
-        "career_aspects": [
-            {
-                "heading": "Entrepreneurship",
-                "description": "ENTPs are well-suited to careers in entrepreneurship, where they can use their innovative thinking and charisma to launch and grow their own businesses."
-            },
-            {
-                "heading": "Consulting",
-                "description": "ENTPs make excellent consultants, using their strategic thinking and communication skills to help organizations solve complex problems and improve their operations."
-            },
-            {
-                "heading": "Research and Development",
-                "description": "ENTPs are drawn to careers in research and development, where they can explore new ideas and technologies, and develop innovative solutions to real-world problems."
-            }
-        ],
-        "big_five": {
-            "traits": {
-                "Openness": "19.2%",
-                "Conscientiousness": "19.2%",
-                "Extraversion": "38.4%",
-                "Agreeableness": "57.6%",
-                "Neuroticism": "19.2%"
-            },
-            "description": "This personality is suitable for many careers and shows balanced traits."
-        }
-    });
+// Default empty data structure
+const defaultData: ReportData = {
+    mbti: {
+        type: "",
+        traits: { Energy: "", Information: "", Decisions: "", Structure: "" },
+        description: ""
+    },
+    big_five: {
+        traits: { Openness: "0", Conscientiousness: "0", Extraversion: "0", Agreeableness: "0", Neuroticism: "0" },
+        description: ""
+    },
+    strengths: [],
+    weaknesses: [],
+    career_aspects: []
+};
 
-    // Big Five radar chart data with proper typing
+export default function ReportPage() {
+    const { user } = useAuth();
+    const router = useRouter();
+    const [data, setData] = useState<ReportData>(defaultData);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const checkUserReport = async () => {
+            if (!user?.uid) {
+                return;
+            }
+
+            try {
+                const reportRef = doc(db, "reports", user.uid);
+                const reportSnap = await getDoc(reportRef);
+
+                if (reportSnap.exists()) {
+                    setData(reportSnap.data().apiResponse as ReportData);
+                } else {
+                    // router.push('/home');
+                }
+            } catch (error) {
+                console.error("Error fetching report:", error);
+                router.push('/home');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        checkUserReport();
+    }, [user, router]);
+
+    // Big Five radar chart data
     const bigFiveChartData = {
         labels: Object.keys(data.big_five.traits),
         datasets: [{
             label: 'Big Five Traits',
-            data: Object.values(data.big_five.traits).map(val => parseFloat(val)), // Parse percentage strings to numbers
-            backgroundColor: 'rgba(59, 130, 246, 0.2)', // Semi-transparent fill
-            borderColor: 'rgb(59, 130, 246)',           // Solid border
+            data: Object.values(data.big_five.traits).map(val => parseFloat(val) || 0),
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgb(59, 130, 246)',
             borderWidth: 2,
-            pointBackgroundColor: 'rgb(59, 130, 246)',  // Point fill
-            pointBorderColor: '#fff',                   // Point border
+            pointBackgroundColor: 'rgb(59, 130, 246)',
+            pointBorderColor: '#fff',
             pointHoverBackgroundColor: '#fff',
             pointHoverBorderColor: 'rgb(59, 130, 246)'
         }]
     };
 
-    // Radar chart options
     const chartOptions = {
         scales: {
             r: {
@@ -181,12 +147,12 @@ export default function ReportPage() {
                 min: 0,
                 max: 100,
                 ticks: {
-                    stepSize: 20, // Increments of 20 (0, 20, 40, 60, 80, 100)
-                    callback: (value: number) => `${value}%` // Add % to ticks
+                    stepSize: 20,
+                    callback: (value: number) => `${value}%`
                 },
                 pointLabels: {
                     font: {
-                        size: 14 // Larger labels for readability
+                        size: 14
                     }
                 }
             }
@@ -203,6 +169,17 @@ export default function ReportPage() {
         }
     };
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading report...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <div className="sticky top-0 z-10">
@@ -211,14 +188,14 @@ export default function ReportPage() {
 
             <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800">Personality Report</h1>
+                    <h1 className="text-3xl font-bold text-gray-800">{user?.displayName?.split(" ")?.[0]}'s Report</h1>
                     <p className="text-gray-600 mt-2">A comprehensive analysis of your personality traits</p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">MBTI: <span className="text-blue-600 font-medium">
-                        {data.mbti.type}
-                    </span></h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                        MBTI: <span className="text-blue-600 font-medium">{data.mbti.type}</span>
+                    </h2>
                     <div className="grid grid-cols-1 gap-4 mb-4">
                         {Object.entries(data.mbti.traits).map(([key, value]) => (
                             <div key={key} className="bg-blue-50 p-3 rounded-md justify-between flex">
@@ -237,6 +214,7 @@ export default function ReportPage() {
                             //@ts-ignore
                             <Radar data={bigFiveChartData} options={chartOptions} />
                         }
+
                     </div>
                     <p className="text-gray-600 mt-4">{data.big_five.description}</p>
                 </div>
@@ -244,33 +222,39 @@ export default function ReportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h2 className="text-2xl font-semibold text-green-800 mb-4">Strengths</h2>
-                        {data.strengths.map((strength, index) => (
+                        {data.strengths.length > 0 ? data.strengths.map((strength, index) => (
                             <div key={index} className="mb-4 last:mb-0">
                                 <h3 className="text-lg font-medium text-green-700">{strength.point}</h3>
                                 <p className="text-gray-600">{strength.description}</p>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-gray-600">No strengths data available</p>
+                        )}
                     </div>
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h2 className="text-2xl font-semibold text-red-800 mb-4">Weaknesses</h2>
-                        {data.weaknesses.map((weakness, index) => (
+                        {data.weaknesses.length > 0 ? data.weaknesses.map((weakness, index) => (
                             <div key={index} className="mb-4 last:mb-0">
                                 <h3 className="text-lg font-medium text-red-700">{weakness.point}</h3>
                                 <p className="text-gray-600">{weakness.description}</p>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-gray-600">No weaknesses data available</p>
+                        )}
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">Career Aspects</h2>
                     <div className="space-y-4">
-                        {data.career_aspects.map((aspect, index) => (
+                        {data.career_aspects.length > 0 ? data.career_aspects.map((aspect, index) => (
                             <div key={index}>
                                 <h3 className="text-lg font-medium text-gray-700">{aspect.heading}</h3>
                                 <p className="text-gray-600">{aspect.description}</p>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-gray-600">No career aspects data available</p>
+                        )}
                     </div>
                 </div>
             </div>

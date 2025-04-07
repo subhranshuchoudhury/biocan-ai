@@ -1,10 +1,14 @@
 'use client';
 
 import Navbar from "@/components/navbar";
+import { db } from "@/configs";
 import { enrichDataWithQuestions } from "@/helper/enrich";
 import { getMBTIScore } from "@/helper/mbti-score";
 import { calculateBigFiveScores } from "@/helper/ocean-score";
+import { useAuth } from "@/providers";
 import { sections } from "@/questions/question";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoSend } from "react-icons/io5";
@@ -26,6 +30,7 @@ interface ArrayEntry {
 }
 
 export default function ChatPage() {
+  const { user } = useAuth();
   const [responses, setResponses] = useState<{ [key: string]: any }>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [textInput, setTextInput] = useState<string>('');
@@ -45,8 +50,33 @@ export default function ChatPage() {
   const [ReadyToSubmit, setReadyToSubmit] = useState(false);
   const [SubmittingData, setSubmittingData] = useState(false);
   const [IsDrawerOpened, setIsDrawerOpened] = useState(false);
+  const router = useRouter();
+
+
+  useEffect(() => {
+    const checkUserReport = async () => {
+      if (!user?.uid) return; // Exit if no user
+
+      try {
+        const reportRef = doc(db, "reports", user.uid);
+        const reportSnap = await getDoc(reportRef);
+
+        if (reportSnap.exists()) {
+          router.replace('/report')
+        }
+      } catch (error) {
+        console.error("Error checking report:", error);
+      }
+    };
+
+    checkUserReport();
+  }, [user, router]);
+
 
   const getVisibleSections = (): Section[] => {
+
+
+
     return sections.filter(section => {
       if (!section.showOnlyWhen) return true;
       return Object.entries(section.showOnlyWhen).every(([questionId, requiredAnswer]) =>
@@ -54,6 +84,7 @@ export default function ChatPage() {
       );
     });
   };
+
 
   const allQuestions: Question[] = getVisibleSections().flatMap(section => section.questions);
   const currentQuestion: Question | undefined = allQuestions[currentQuestionIndex];
@@ -314,15 +345,15 @@ export default function ChatPage() {
   useEffect(() => {
     try {
 
-      const result = enrichDataWithQuestions(responses, sections);
-      // console.log("Result of Response: ", result);
-      console.log("Response", responses);
+      // const result = enrichDataWithQuestions(responses, sections);
+      // // console.log("Result of Response: ", result);
+      // console.log("Response", responses);
 
-      const mbtiScore = getMBTIScore(responses);
-      const bigFive = calculateBigFiveScores(responses);
+      // const mbtiScore = getMBTIScore(responses);
+      // const bigFive = calculateBigFiveScores(responses);
 
-      // console.log("MBTI Score:", JSON.stringify(mbtiScore, null, 2))
-      console.log("Big-5 Score:", JSON.stringify(bigFive, null, 2))
+      // // console.log("MBTI Score:", JSON.stringify(mbtiScore, null, 2))
+      // console.log("Big-5 Score:", JSON.stringify(bigFive, null, 2))
 
     } catch (error) {
       console.log(error);
@@ -359,16 +390,53 @@ export default function ChatPage() {
 
   const handleSubmitData = async () => {
     try {
-
       setSubmittingData(true);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const enrichData = enrichDataWithQuestions(responses, sections);
+
+      const mbtiScore = getMBTIScore(responses);
+      const bigFive = calculateBigFiveScores(responses);
+      console.log("Enrich Data", enrichData);
+      console.log("MBTI Data", mbtiScore);
+      console.log("BIG5 Data", bigFive);
+
+      const endPoint = 'https://biocan-backend.onrender.com/get_report';
+      const response = await fetch(endPoint, {
+        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        body: JSON.stringify({
+          ...mbtiScore,
+          ...bigFive
+        })
+      });
+
+      if (response.status === 200) {
+        const responseData = await response.json();
+
+        if (!user?.uid) {
+          throw new Error("No authenticated user found");
+        }
+
+        const reportRef = doc(db, "reports", user.uid);
+        await setDoc(reportRef, {
+          enrichedData: enrichData,
+          apiResponse: responseData,
+          mbtiScore: mbtiScore,
+          bigFive: bigFive,
+          timestamp: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId: user.uid
+        }, { merge: false });
+
+        console.log("User data successfully updated in Firebase");
+      }
+
       setSubmittingData(false);
 
-
     } catch (error) {
-
+      console.error("Error in handleSubmitData:", error);
+      setSubmittingData(false);
     }
-  }
+  };
 
   const renderCurrentQuestion = (): string => {
     if (showAddMorePrompt) {

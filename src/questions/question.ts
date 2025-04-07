@@ -617,12 +617,12 @@ export const sections: Section[] = [
         id: "SEC7",
         section: "Big FIVE (Myers-Briggs Type Indicator) - 60 Questions",
         questions: [
-            {
-                "id": "S7BFQ0",
-                "inputType": "radio",
-                "question": "You will be asked 60 Question and you have to choose one from four options.",
-                "options": ["Start"]
-            },
+            // {
+            //     "id": "S7BFQ0",
+            //     "inputType": "radio",
+            //     "question": "You will be asked 60 Question and you have to choose one from four options.",
+            //     "options": ["Start"]
+            // },
             {
                 "id": "S7BFQ1",
                 "inputType": "radio",
@@ -635,358 +635,358 @@ export const sections: Section[] = [
                 "question": "I appreciate art, music, and literature deeply.",
                 "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
             },
-            {
-                "id": "S7BFQ3",
-                "inputType": "radio",
-                "question": "I like solving complex problems and puzzles.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ4",
-                "inputType": "radio",
-                "question": "I prefer new and unconventional ways of doing things.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ5",
-                "inputType": "radio",
-                "question": "I am curious about different cultures and philosophies.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ6",
-                "inputType": "radio",
-                "question": "I get bored with routine tasks easily.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ7",
-                "inputType": "radio",
-                "question": "I tend to think about abstract or theoretical ideas.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ8",
-                "inputType": "radio",
-                "question": "I am interested in scientific and technological advancements.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ9",
-                "inputType": "radio",
-                "question": "I often come up with creative solutions to problems.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ10",
-                "inputType": "radio",
-                "question": "I enjoy discussing deep, intellectual topics.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ11",
-                "inputType": "radio",
-                "question": "I am open to re-evaluating my beliefs when presented with new evidence.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ12",
-                "inputType": "radio",
-                "question": "I prefer spontaneous adventures over structured plans.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
+            // {
+            //     "id": "S7BFQ3",
+            //     "inputType": "radio",
+            //     "question": "I like solving complex problems and puzzles.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ4",
+            //     "inputType": "radio",
+            //     "question": "I prefer new and unconventional ways of doing things.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ5",
+            //     "inputType": "radio",
+            //     "question": "I am curious about different cultures and philosophies.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ6",
+            //     "inputType": "radio",
+            //     "question": "I get bored with routine tasks easily.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ7",
+            //     "inputType": "radio",
+            //     "question": "I tend to think about abstract or theoretical ideas.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ8",
+            //     "inputType": "radio",
+            //     "question": "I am interested in scientific and technological advancements.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ9",
+            //     "inputType": "radio",
+            //     "question": "I often come up with creative solutions to problems.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ10",
+            //     "inputType": "radio",
+            //     "question": "I enjoy discussing deep, intellectual topics.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ11",
+            //     "inputType": "radio",
+            //     "question": "I am open to re-evaluating my beliefs when presented with new evidence.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ12",
+            //     "inputType": "radio",
+            //     "question": "I prefer spontaneous adventures over structured plans.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
 
-            {
-                "id": "S7BFQ13",
-                "inputType": "radio",
-                "question": "I keep my workspace organized and tidy.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ14",
-                "inputType": "radio",
-                "question": "I set long-term goals and stick to them.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ15",
-                "inputType": "radio",
-                "question": "I always complete tasks before the deadline.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ16",
-                "inputType": "radio",
-                "question": "I prefer having a structured schedule for my day.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ17",
-                "inputType": "radio",
-                "question": "I am highly disciplined in my work or studies.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ18",
-                "inputType": "radio",
-                "question": "I rarely procrastinate on important tasks.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ19",
-                "inputType": "radio",
-                "question": "I follow through on commitments, even when difficult.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ20",
-                "inputType": "radio",
-                "question": "I carefully plan before making important decisions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ21",
-                "inputType": "radio",
-                "question": "I stick to my routines and habits.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ22",
-                "inputType": "radio",
-                "question": "I hold myself accountable for my actions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ23",
-                "inputType": "radio",
-                "question": "I find it easy to resist temptations and distractions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ24",
-                "inputType": "radio",
-                "question": "I prefer working methodically over improvising.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
+            // {
+            //     "id": "S7BFQ13",
+            //     "inputType": "radio",
+            //     "question": "I keep my workspace organized and tidy.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ14",
+            //     "inputType": "radio",
+            //     "question": "I set long-term goals and stick to them.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ15",
+            //     "inputType": "radio",
+            //     "question": "I always complete tasks before the deadline.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ16",
+            //     "inputType": "radio",
+            //     "question": "I prefer having a structured schedule for my day.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ17",
+            //     "inputType": "radio",
+            //     "question": "I am highly disciplined in my work or studies.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ18",
+            //     "inputType": "radio",
+            //     "question": "I rarely procrastinate on important tasks.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ19",
+            //     "inputType": "radio",
+            //     "question": "I follow through on commitments, even when difficult.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ20",
+            //     "inputType": "radio",
+            //     "question": "I carefully plan before making important decisions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ21",
+            //     "inputType": "radio",
+            //     "question": "I stick to my routines and habits.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ22",
+            //     "inputType": "radio",
+            //     "question": "I hold myself accountable for my actions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ23",
+            //     "inputType": "radio",
+            //     "question": "I find it easy to resist temptations and distractions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ24",
+            //     "inputType": "radio",
+            //     "question": "I prefer working methodically over improvising.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
 
-            {
-                "id": "S7BFQ25",
-                "inputType": "radio",
-                "question": "I enjoy socializing with large groups of people.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ26",
-                "inputType": "radio",
-                "question": "I feel energized after spending time with others.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ27",
-                "inputType": "radio",
-                "question": "I often take the lead in group discussions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ28",
-                "inputType": "radio",
-                "question": "I seek out exciting and stimulating experiences.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ29",
-                "inputType": "radio",
-                "question": "I express my emotions openly and enthusiastically.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ30",
-                "inputType": "radio",
-                "question": "I enjoy being the center of attention.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ31",
-                "inputType": "radio",
-                "question": "I frequently initiate conversations with new people.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ32",
-                "inputType": "radio",
-                "question": "I prefer working in teams rather than alone.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ33",
-                "inputType": "radio",
-                "question": "I get bored when I have to spend too much time alone.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ34",
-                "inputType": "radio",
-                "question": "I talk more than I listen in conversations.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ35",
-                "inputType": "radio",
-                "question": "I often take risks in social situations.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ36",
-                "inputType": "radio",
-                "question": "I easily make new friends wherever I go.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
+            // {
+            //     "id": "S7BFQ25",
+            //     "inputType": "radio",
+            //     "question": "I enjoy socializing with large groups of people.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ26",
+            //     "inputType": "radio",
+            //     "question": "I feel energized after spending time with others.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ27",
+            //     "inputType": "radio",
+            //     "question": "I often take the lead in group discussions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ28",
+            //     "inputType": "radio",
+            //     "question": "I seek out exciting and stimulating experiences.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ29",
+            //     "inputType": "radio",
+            //     "question": "I express my emotions openly and enthusiastically.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ30",
+            //     "inputType": "radio",
+            //     "question": "I enjoy being the center of attention.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ31",
+            //     "inputType": "radio",
+            //     "question": "I frequently initiate conversations with new people.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ32",
+            //     "inputType": "radio",
+            //     "question": "I prefer working in teams rather than alone.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ33",
+            //     "inputType": "radio",
+            //     "question": "I get bored when I have to spend too much time alone.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ34",
+            //     "inputType": "radio",
+            //     "question": "I talk more than I listen in conversations.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ35",
+            //     "inputType": "radio",
+            //     "question": "I often take risks in social situations.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ36",
+            //     "inputType": "radio",
+            //     "question": "I easily make new friends wherever I go.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
 
-            {
-                "id": "S7BFQ37",
-                "inputType": "radio",
-                "question": "I sympathize with others' problems and emotions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ38",
-                "inputType": "radio",
-                "question": "I enjoy helping people even if there's no reward.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ39",
-                "inputType": "radio",
-                "question": "I trust people easily and give them the benefit of the doubt.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ40",
-                "inputType": "radio",
-                "question": "I avoid conflicts and try to keep peace.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ41",
-                "inputType": "radio",
-                "question": "I go out of my way to make others feel comfortable.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ42",
-                "inputType": "radio",
-                "question": "I often put others' needs before my own.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ43",
-                "inputType": "radio",
-                "question": "I feel guilty if I accidentally hurt someone's feelings.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ44",
-                "inputType": "radio",
-                "question": "I am forgiving even when someone has wronged me.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ45",
-                "inputType": "radio",
-                "question": "I rarely criticize or insult others.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ46",
-                "inputType": "radio",
-                "question": "I believe cooperation is more important than competition.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ47",
-                "inputType": "radio",
-                "question": "I tend to agree with others to avoid arguments.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ48",
-                "inputType": "radio",
-                "question": "I dislike confrontations and arguments.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
+            // {
+            //     "id": "S7BFQ37",
+            //     "inputType": "radio",
+            //     "question": "I sympathize with others' problems and emotions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ38",
+            //     "inputType": "radio",
+            //     "question": "I enjoy helping people even if there's no reward.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ39",
+            //     "inputType": "radio",
+            //     "question": "I trust people easily and give them the benefit of the doubt.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ40",
+            //     "inputType": "radio",
+            //     "question": "I avoid conflicts and try to keep peace.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ41",
+            //     "inputType": "radio",
+            //     "question": "I go out of my way to make others feel comfortable.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ42",
+            //     "inputType": "radio",
+            //     "question": "I often put others' needs before my own.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ43",
+            //     "inputType": "radio",
+            //     "question": "I feel guilty if I accidentally hurt someone's feelings.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ44",
+            //     "inputType": "radio",
+            //     "question": "I am forgiving even when someone has wronged me.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ45",
+            //     "inputType": "radio",
+            //     "question": "I rarely criticize or insult others.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ46",
+            //     "inputType": "radio",
+            //     "question": "I believe cooperation is more important than competition.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ47",
+            //     "inputType": "radio",
+            //     "question": "I tend to agree with others to avoid arguments.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ48",
+            //     "inputType": "radio",
+            //     "question": "I dislike confrontations and arguments.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
 
-            {
-                "id": "S7BFQ49",
-                "inputType": "radio",
-                "question": "I frequently feel stressed or anxious.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ50",
-                "inputType": "radio",
-                "question": "I get upset easily over small things.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ51",
-                "inputType": "radio",
-                "question": "I worry a lot about future events.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ52",
-                "inputType": "radio",
-                "question": "I am often self-conscious in social situations.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ53",
-                "inputType": "radio",
-                "question": "I struggle with mood swings.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ54",
-                "inputType": "radio",
-                "question": "I take criticism very personally.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ55",
-                "inputType": "radio",
-                "question": "I have trouble controlling my emotions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ56",
-                "inputType": "radio",
-                "question": "I feel overwhelmed when I have too much to do.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ57",
-                "inputType": "radio",
-                "question": "I often doubt my abilities and decisions.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ58",
-                "inputType": "radio",
-                "question": "I get irritated easily when things don't go my way.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ59",
-                "inputType": "radio",
-                "question": "I fear failure more than I should.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            },
-            {
-                "id": "S7BFQ60",
-                "inputType": "radio",
-                "question": "I feel nervous in unfamiliar situations.",
-                "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-            }
+            // {
+            //     "id": "S7BFQ49",
+            //     "inputType": "radio",
+            //     "question": "I frequently feel stressed or anxious.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ50",
+            //     "inputType": "radio",
+            //     "question": "I get upset easily over small things.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ51",
+            //     "inputType": "radio",
+            //     "question": "I worry a lot about future events.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ52",
+            //     "inputType": "radio",
+            //     "question": "I am often self-conscious in social situations.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ53",
+            //     "inputType": "radio",
+            //     "question": "I struggle with mood swings.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ54",
+            //     "inputType": "radio",
+            //     "question": "I take criticism very personally.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ55",
+            //     "inputType": "radio",
+            //     "question": "I have trouble controlling my emotions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ56",
+            //     "inputType": "radio",
+            //     "question": "I feel overwhelmed when I have too much to do.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ57",
+            //     "inputType": "radio",
+            //     "question": "I often doubt my abilities and decisions.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ58",
+            //     "inputType": "radio",
+            //     "question": "I get irritated easily when things don't go my way.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ59",
+            //     "inputType": "radio",
+            //     "question": "I fear failure more than I should.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // },
+            // {
+            //     "id": "S7BFQ60",
+            //     "inputType": "radio",
+            //     "question": "I feel nervous in unfamiliar situations.",
+            //     "options": ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+            // }
 
 
 

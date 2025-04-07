@@ -22,7 +22,7 @@ interface MBTIResult {
         Decisions: string;
         Structure: string;
     };
-    scores: { [key: string]: number }
+    // scores: { [key: string]: number }
 }
 
 // Define the question set details with type
@@ -156,7 +156,7 @@ export const getMBTIScore = (finalResponse: DataEntry): { mbti: MBTIResult } => 
         mbti: {
             type: mbtiType,
             traits: traits,
-            scores: scores
+            // scores: scores
         }
     };
 };
