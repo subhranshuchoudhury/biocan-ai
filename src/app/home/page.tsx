@@ -5,6 +5,7 @@ import { enrichDataWithQuestions } from "@/helper/enrich";
 import { getMBTIScore } from "@/helper/mbti-score";
 import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoSend } from "react-icons/io5";
 import Select from 'react-select';
 import { Question, Section } from "types/chat";
@@ -39,7 +40,9 @@ export default function ChatPage() {
   const [currentArraySectionId, setCurrentArraySectionId] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
-  const [IsReportAvailable, setIsReportAvailable] = useState(false)
+  const [IsReportAvailable, setIsReportAvailable] = useState(false);
+  const [ReadyToSubmit, setReadyToSubmit] = useState(false);
+  const [SubmittingData, setSubmittingData] = useState(false)
 
   const getVisibleSections = (): Section[] => {
     return sections.filter(section => {
@@ -247,8 +250,8 @@ export default function ChatPage() {
         }, 500);
 
       } else {
-        alert('All questions completed. Submitting...');
-        console.log(responses);
+        // All the questions has been finished ask the user to submit the data.
+        setReadyToSubmit(true);
       }
     }
 
@@ -350,6 +353,19 @@ export default function ChatPage() {
     }
   };
 
+  const handleSubmitData = async () => {
+    try {
+
+      setSubmittingData(true);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      setSubmittingData(false);
+
+
+    } catch (error) {
+
+    }
+  }
+
   const renderCurrentQuestion = (): string => {
     if (showAddMorePrompt) {
       const currentSection = getCurrentSection();
@@ -432,6 +448,38 @@ export default function ChatPage() {
     }
   };
 
+  const renderSubmitButton = () => {
+    return <div className="flex flex-col items-center border-t pt-4 w-full">
+      <p className="text-lg font-medium mb-2 text-black">{SubmittingData ? "Please wait while we submitting your data..." : "Do you want to submit the chat? "}</p>
+      <div className="flex justify-center gap-4">
+
+        {
+          SubmittingData ? <span className="flex justify-center items-center animate-spin mb-5">
+            <AiOutlineLoading3Quarters color="#0B7DBF" size={30} />
+          </span> : <button
+            disabled={SubmittingData}
+            type="button"
+            className="py-2 px-6 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors hover:cursor-pointer"
+            onClick={async () => {
+              await handleSubmitData();
+            }}
+          >
+            Submit
+          </button>
+        }
+
+
+        {/* <button
+          type="button"
+          className="py-2 px-6 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-colors hover:cursor-pointer"
+          onClick={() => { }}
+        >
+          Cancel
+        </button> */}
+      </div>
+    </div>
+  }
+
   const renderAddMorePrompt = () => (
     <div className="flex w-full flex-col bg-white p-4 rounded-lg shadow-md">
       <div className="flex justify-center gap-4 mb-4">
@@ -446,6 +494,7 @@ export default function ChatPage() {
   );
 
   const renderInputField = () => {
+    if (ReadyToSubmit) return renderSubmitButton();
     if (showAddMorePrompt) return renderAddMorePrompt();
     if (inArrayInput) return renderArrayInputField();
     if (!currentQuestion) return null;

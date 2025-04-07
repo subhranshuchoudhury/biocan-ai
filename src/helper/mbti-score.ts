@@ -111,7 +111,7 @@ export const getMBTIScore = (finalResponse: DataEntry): { mbti: MBTIResult } => 
         mbtiType += 'I';
         traits.Energy = 'Introversion (I)';
     } else {
-        mbtiType += 'E/I';
+        mbtiType += 'E';
         traits.Energy = 'Extraversion (E) / Introversion (I)';
     }
 
@@ -123,7 +123,7 @@ export const getMBTIScore = (finalResponse: DataEntry): { mbti: MBTIResult } => 
         mbtiType += 'N';
         traits.Information = 'Intuition (N)';
     } else {
-        mbtiType += 'S/N';
+        mbtiType += 'S';
         traits.Information = 'Sensing (S) / Intuition (N)';
     }
 
@@ -135,7 +135,7 @@ export const getMBTIScore = (finalResponse: DataEntry): { mbti: MBTIResult } => 
         mbtiType += 'F';
         traits.Decisions = 'Feeling (F)';
     } else {
-        mbtiType += 'T/F';
+        mbtiType += 'T';
         traits.Decisions = 'Thinking (T) / Feeling (F)';
     }
 
@@ -147,7 +147,7 @@ export const getMBTIScore = (finalResponse: DataEntry): { mbti: MBTIResult } => 
         mbtiType += 'P';
         traits.Structure = 'Perceiving (P)';
     } else {
-        mbtiType += 'J/P';
+        mbtiType += 'J';
         traits.Structure = 'Judging (J) / Perceiving (P)';
     }
 
