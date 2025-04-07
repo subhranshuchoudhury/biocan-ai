@@ -1,83 +1,80 @@
-// pages/contact-us.tsx
+// components/ContactUsPage.tsx
 'use client';
 
-import { useState } from 'react';
 import Navbar from '@/components/navbar';
+import { FaPhone, FaEnvelope, FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
 
-const ContactUsPage = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        message: '',
-    });
+const ContactUsPage: React.FC = () => {
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Contact Form Submission:', formData);
-        // You can add Firebase integration here to store the form data
-        alert('Thank you for your message! We will get back to you soon.');
-        setFormData({ name: '', email: '', message: '' });
-    };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Navbar />
-            <div className="max-w-2xl mx-auto p-4">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block text-gray-700">Name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
+        <div className="min-h-screen bg-white flex flex-col">
+            {/* Sticky Navbar */}
+            <div className="sticky top-0 z-50 bg-white shadow-md">
+                <Navbar
+                    title='Contact Us'
+                    showDropdown={false}
+                />
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
+                    {/* Get in Touch Section */}
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Get in Touch</h1>
+                        <p className="text-gray-600 mb-6">
+                            If you have any inquiries get in touch with us. We'll be happy to help you.
+                        </p>
+
+                        {/* Contact Information */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-center gap-2 bg-gray-100 p-3 rounded-lg">
+                                <FaPhone className="text-blue-800" size={20} />
+                                <span className="text-gray-800 font-medium">+1 (917) 555-6789</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 bg-gray-100 p-3 rounded-lg">
+                                <FaEnvelope className="text-blue-800" size={20} />
+                                <span className="text-gray-800 font-medium">companyname.info@gmail.com</span>
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="email" className="block text-gray-700">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
+                    </div>
+
+                    {/* Social Media Section */}
+                    <div className="mt-8 text-center">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Social Media</h2>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="flex-shrink-0">
+                                    <FaFacebookF className="text-blue-800 bg-gray-100 p-2 rounded-full" size={40} />
+                                </div>
+                                <span className="text-gray-600 text-sm flex-1 text-left">
+                                    Stay updated, connect with us on Facebook.
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="flex-shrink-0">
+                                    <FaInstagram className="text-blue-800 bg-gray-100 p-2 rounded-full" size={40} />
+                                </div>
+                                <span className="text-gray-600 text-sm flex-1 text-left">
+                                    Explore and discover beauty of our brand.
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="flex-shrink-0">
+                                    <FaTwitter className="text-blue-800 bg-gray-100 p-2 rounded-full" size={40} />
+                                </div>
+                                <span className="text-gray-600 text-sm flex-1 text-left">
+                                    Follow us for real-time updates and lively discussions.
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="message" className="block text-gray-700">Message</label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                value={formData.message}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border rounded"
-                                rows={5}
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                        >
-                            Send Message
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+
 
 export default ContactUsPage;

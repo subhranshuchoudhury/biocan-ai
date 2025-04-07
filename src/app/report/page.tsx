@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/navbar";
 import { useState } from "react";
-import { Bar } from "react-chartjs-2";
+import { Radar } from "react-chartjs-2"; // Replace Bar with Radar
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -11,16 +11,22 @@ import {
     Title,
     Tooltip,
     Legend,
+    RadialLinearScale, // Add for radar chart
+    PointElement,      // Add for radar chart
+    LineElement        // Add for radar chart
 } from "chart.js";
 
-// Register ChartJS components
+// Register ChartJS components, including radar-specific ones
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    RadialLinearScale, // Required for radar chart
+    PointElement,      // Required for radar chart
+    LineElement        // Required for radar chart
 );
 
 // Define interfaces for the data structure
@@ -68,67 +74,120 @@ interface ReportData {
     career_aspects: CareerAspect[];
 }
 
-// interface ReportPageProps {
-//     reportData?: ReportData;
-// }
-
 export default function ReportPage() {
     // Default data with type assertion
     const [data] = useState<ReportData>({
-        mbti: {
-            type: "INFP",
-            traits: {
-                Energy: "Introversion (I)",
-                Information: "Intuition (N)",
-                Decisions: "Feeling (F)",
-                Structure: "Perceiving (P)"
+        "mbti": {
+            "type": "ENTP",
+            "traits": {
+                "Energy": "Extraversion (E)",
+                "Information": "Intuition (N)",
+                "Decisions": "Thinking (T)",
+                "Structure": "Perceiving (P)"
             },
-            description: "INFPs are imaginative idealists, guided by their own core values and beliefs..."
+            "description": "ENTPs are known for their innovative and entrepreneurial spirit, often generating new ideas and exploring possibilities. They are charismatic and adaptable, with a passion for learning and discussing complex concepts."
         },
-        big_five: {
-            traits: {
-                Openness: "75%",
-                Conscientiousness: "60%",
-                Extraversion: "45%",
-                Agreeableness: "80%",
-                Neuroticism: "35%"
+        "strengths": [
+            {
+                "point": "Strategic Thinking",
+                "description": "ENTPs have the ability to think critically and strategically, often finding creative solutions to complex problems."
             },
-            description: "This individual shows high openness to experience and agreeableness..."
-        },
-        strengths: [
-            { point: "Creativity", description: "Ability to think outside the box..." },
-            { point: "Empathy", description: "Strong understanding of others' feelings..." }
+            {
+                "point": "Effective Communication",
+                "description": "ENTPs are skilled communicators, able to articulate their ideas and thoughts in a clear and engaging manner."
+            },
+            {
+                "point": "Adaptability",
+                "description": "ENTPs are highly adaptable, able to adjust to new situations and challenges with ease."
+            },
+            {
+                "point": "Innovative Problem-Solving",
+                "description": "ENTPs are known for their innovative approach to problem-solving, often finding unique and effective solutions."
+            },
+            {
+                "point": "Charisma",
+                "description": "ENTPs have a natural charm and charisma, able to inspire and motivate others with their enthusiasm and passion."
+            }
         ],
-        weaknesses: [
-            { point: "Procrastination", description: "Tendency to delay tasks..." },
-            { point: "Over-sensitivity", description: "May take things too personally..." }
+        "weaknesses": [
+            {
+                "point": "Disorganization",
+                "description": "ENTPs often struggle with organization and planning, preferring to focus on the big picture rather than the details."
+            },
+            {
+                "point": "Impatience",
+                "description": "ENTPs can be impatient, often becoming bored or restless if they are not challenged or stimulated."
+            },
+            {
+                "point": "Overthinking",
+                "description": "ENTPs can overthink and analyze situations, sometimes leading to indecision and inaction."
+            },
+            {
+                "point": "Insensitivity",
+                "description": "ENTPs can be insensitive to the feelings and needs of others, prioritizing their own ideas and interests."
+            },
+            {
+                "point": "Restlessness",
+                "description": "ENTPs can be restless and easily distracted, often moving from one project or idea to another without completing the previous one."
+            }
         ],
-        career_aspects: [
-            { heading: "Creative Fields", description: "Well-suited for artistic pursuits..." },
-            { heading: "Helping Professions", description: "Excels in roles that support others..." }
-        ]
+        "career_aspects": [
+            {
+                "heading": "Entrepreneurship",
+                "description": "ENTPs are well-suited to careers in entrepreneurship, where they can use their innovative thinking and charisma to launch and grow their own businesses."
+            },
+            {
+                "heading": "Consulting",
+                "description": "ENTPs make excellent consultants, using their strategic thinking and communication skills to help organizations solve complex problems and improve their operations."
+            },
+            {
+                "heading": "Research and Development",
+                "description": "ENTPs are drawn to careers in research and development, where they can explore new ideas and technologies, and develop innovative solutions to real-world problems."
+            }
+        ],
+        "big_five": {
+            "traits": {
+                "Openness": "19.2%",
+                "Conscientiousness": "19.2%",
+                "Extraversion": "38.4%",
+                "Agreeableness": "57.6%",
+                "Neuroticism": "19.2%"
+            },
+            "description": "This personality is suitable for many careers and shows balanced traits."
+        }
     });
 
-    // Big Five chart data with proper typing
+    // Big Five radar chart data with proper typing
     const bigFiveChartData = {
         labels: Object.keys(data.big_five.traits),
         datasets: [{
-            label: 'Personality Scores',
-            data: Object.values(data.big_five.traits).map(val => parseInt(val)),
-            backgroundColor: 'rgba(59, 130, 246, 0.5)',
-            borderColor: 'rgb(59, 130, 246)',
+            label: 'Big Five Traits',
+            data: Object.values(data.big_five.traits).map(val => parseFloat(val)), // Parse percentage strings to numbers
+            backgroundColor: 'rgba(59, 130, 246, 0.2)', // Semi-transparent fill
+            borderColor: 'rgb(59, 130, 246)',           // Solid border
             borderWidth: 2,
+            pointBackgroundColor: 'rgb(59, 130, 246)',  // Point fill
+            pointBorderColor: '#fff',                   // Point border
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(59, 130, 246)'
         }]
     };
 
+    // Radar chart options
     const chartOptions = {
         scales: {
-            y: {
+            r: {
                 beginAtZero: true,
+                min: 0,
                 max: 100,
-                title: {
-                    display: true,
-                    text: 'Percentage'
+                ticks: {
+                    stepSize: 20, // Increments of 20 (0, 20, 40, 60, 80, 100)
+                    callback: (value: number) => `${value}%` // Add % to ticks
+                },
+                pointLabels: {
+                    font: {
+                        size: 14 // Larger labels for readability
+                    }
                 }
             }
         },
@@ -136,6 +195,11 @@ export default function ReportPage() {
             legend: {
                 position: 'top' as const,
             },
+            tooltip: {
+                callbacks: {
+                    label: (context: any) => `${context.dataset.label}: ${context.raw}%`
+                }
+            }
         }
     };
 
@@ -152,11 +216,13 @@ export default function ReportPage() {
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">MBTI: {data.mbti.type}</h2>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">MBTI: <span className="text-blue-600 font-medium">
+                        {data.mbti.type}
+                    </span></h2>
+                    <div className="grid grid-cols-1 gap-4 mb-4">
                         {Object.entries(data.mbti.traits).map(([key, value]) => (
-                            <div key={key} className="bg-blue-50 p-3 rounded-md">
-                                <span className="font-medium text-blue-800">{key}:</span>
+                            <div key={key} className="bg-blue-50 p-3 rounded-md justify-between flex">
+                                <span className="font-bold text-blue-800">{key}</span>
                                 <span className="ml-2 text-blue-600">{value}</span>
                             </div>
                         ))}
@@ -167,7 +233,10 @@ export default function ReportPage() {
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">Big Five Traits</h2>
                     <div className="max-w-2xl mx-auto">
-                        <Bar data={bigFiveChartData} options={chartOptions} />
+                        {
+                            //@ts-ignore
+                            <Radar data={bigFiveChartData} options={chartOptions} />
+                        }
                     </div>
                     <p className="text-gray-600 mt-4">{data.big_five.description}</p>
                 </div>

@@ -3,6 +3,7 @@
 import Navbar from "@/components/navbar";
 import { enrichDataWithQuestions } from "@/helper/enrich";
 import { getMBTIScore } from "@/helper/mbti-score";
+import { calculateBigFiveScores } from "@/helper/ocean-score";
 import { sections } from "@/questions/question";
 import { useState, useEffect, useRef } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -42,7 +43,8 @@ export default function ChatPage() {
   const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
   const [IsReportAvailable, setIsReportAvailable] = useState(false);
   const [ReadyToSubmit, setReadyToSubmit] = useState(false);
-  const [SubmittingData, setSubmittingData] = useState(false)
+  const [SubmittingData, setSubmittingData] = useState(false);
+  const [IsDrawerOpened, setIsDrawerOpened] = useState(false);
 
   const getVisibleSections = (): Section[] => {
     return sections.filter(section => {
@@ -317,8 +319,10 @@ export default function ChatPage() {
       console.log("Response", responses);
 
       const mbtiScore = getMBTIScore(responses);
+      const bigFive = calculateBigFiveScores(responses);
 
-      console.log("MBTI Score:", JSON.stringify(mbtiScore, null, 2))
+      // console.log("MBTI Score:", JSON.stringify(mbtiScore, null, 2))
+      console.log("Big-5 Score:", JSON.stringify(bigFive, null, 2))
 
     } catch (error) {
       console.log(error);
@@ -655,7 +659,9 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-[#fff] flex flex-col">
       <div className="sticky top-0">
-        <Navbar />
+        <Navbar onChangeDrawer={(value) => {
+          setIsDrawerOpened(value);
+        }} />
       </div>
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
         {
@@ -720,14 +726,25 @@ export default function ChatPage() {
         }
 
 
-      </div>
-      <div className="sticky bottom-0 bg-transparent flex items-center gap-2 m-2">
         {
-          IsReportAvailable ? <div className="flex justify-center items-center w-full">
-            <button className="text-black">
-              Show Jobs button
+          !IsDrawerOpened ? <div className="sticky bottom-0 bg-transparent flex items-center gap-2 m-2">
+            {
+              IsReportAvailable ? <div className="flex justify-center items-center w-full">
+                <button className="text-black">
+                  Show Jobs button
+                </button>
+              </div> : renderInputField()
+            }
+
+          </div> : <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+            <input
+              placeholder="Type your message"
+              className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
+            />
+            <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors">
+              <IoSend color="#155dfc" size={20} />
             </button>
-          </div> : renderInputField()
+          </div>
         }
 
       </div>
