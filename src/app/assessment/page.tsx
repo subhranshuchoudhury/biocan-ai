@@ -458,7 +458,7 @@ export default function ChatPage() {
     switch (currentField.inputType) {
       case 'text':
         return (
-          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+          <div className="flex w-full justify-between shadow-md border border-[#bebebe] rounded-full bg-white">
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               value={textInput}
@@ -576,7 +576,7 @@ export default function ChatPage() {
 
       case 'text':
         return (
-          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+          <div className="flex w-full justify-between shadow-md border border-[#bebebe] rounded-full bg-white">
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               value={textInput}
@@ -712,7 +712,7 @@ export default function ChatPage() {
         );
       case 'array':
         return (
-          <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">
+          <div className="flex w-full justify-between shadow-md border border-[#bebebe] rounded-full bg-white">
             <div className="flex-1 py-3 px-4 text-gray-500">{`Let's start with your ${getCurrentSection()!.section.toLowerCase()}`}</div>
             <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
               <IoSend color="#155dfc" size={20} />

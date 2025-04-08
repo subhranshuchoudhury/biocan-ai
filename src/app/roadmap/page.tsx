@@ -3,11 +3,31 @@
 import Navbar from "@/components/navbar";
 import { useAuth } from "@/providers";
 import { IoSend } from "react-icons/io5";
+import { IoIosArrowForward } from "react-icons/io";
+import { useRouter } from "next/navigation";
 
-export default function ChatPage() {
+export default function RoadMap() {
+    const router = useRouter()
     const { user } = useAuth();
 
+    const JobsData = [
+        {
+            title: "Clinical Data Management Associate"
+        },
+        {
+            title: "Clinical Data Management Associate"
+        },
+        {
+            title: "Clinical Data Management Associate"
+        },
+        {
+            title: "Clinical Data Management Associate"
+        }
+    ];
 
+    const handleOnClickJob = (jobid: string) => {
+        router.push(`/roadmap/job/1`)
+    }
 
     return (
         <div className="min-h-screen bg-[#fff] flex flex-col">
@@ -20,10 +40,21 @@ export default function ChatPage() {
                         <div>
                             <div className="mb-4 text-left">
                                 <div className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
-                                    Hello {user?.displayName?.split(" ")?.[0]},<br></br>How can i help you today?
+                                    Hello {user?.displayName?.split(" ")?.[0]},<br></br>Based on your assessment, You can choose to be
                                 </div>
                             </div>
-
+                            <div className="mt-4 text-left">
+                                {
+                                    JobsData.map((job, index) => {
+                                        return (
+                                            <div key={index} onClick={() => handleOnClickJob(job.title)} className="my-2 p-3 rounded-lg hover:cursor-pointer bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%] flex items-center justify-between">
+                                                <span>{job.title}</span>
+                                                <IoIosArrowForward color="#155dfc" size={20} />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
                         </div>
                     </div>
                 }

@@ -14,10 +14,13 @@ import { useAuth } from '@/providers';
 import Select from 'react-select';
 import { IoChevronBackCircleOutline } from "react-icons/io5";
 import { doc, getDoc } from 'firebase/firestore';
+
+type ReactSelectOptionType = { label: string, value: string }
+
 const Navbar: React.FC<{
-    assessmentOptions?: { value: string; label: string }[];
-    onAssessmentChange?: (selectedOption: { value: string; label: string } | null) => void;
-    defaultAssessmentValue?: { value: string; label: string };
+    assessmentOptions?: ReactSelectOptionType[];
+    onAssessmentChange?: (selectedOption: ReactSelectOptionType | null) => void;
+    defaultAssessmentValue?: ReactSelectOptionType;
     onChangeDrawer?: (value: boolean) => void;
     showDropdown?: boolean; // Optional prop to toggle dropdown visibility
     title?: string; // Optional prop to set the title
@@ -31,10 +34,24 @@ const Navbar: React.FC<{
 }) => {
         const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
         const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-        const [SelectOption, setSelectOption] = useState(assessmentOptions)
+        const [SelectOptions, setSelectOptions] = useState(assessmentOptions)
+        const [SelectedOption, setSelectedOption] = useState<ReactSelectOptionType>({ label: "", value: "" })
         const { user } = useAuth();
         const router = useRouter();
-        const pathName = usePathname()
+        const pathName = usePathname();
+
+
+        useEffect(() => {
+            if (pathName.includes('roadmap'))
+                setSelectedOption({ label: 'Roadmap', value: 'roadmap' })
+            if (pathName.includes('assessment'))
+                setSelectedOption({ label: "Assessment", value: "assessment" })
+            if (pathName.includes('report'))
+                setSelectedOption({ label: "Assessment", value: "assessment" })
+            if (pathName.includes('chat'))
+                setSelectedOption({ label: "BioCanAi", value: "chat" })
+        }, [pathName])
+
 
         useEffect(() => {
             const checkUserReport = async () => {
@@ -46,17 +63,17 @@ const Navbar: React.FC<{
                     const reportSnap = await getDoc(reportRef);
 
                     if (reportSnap.exists()) {
-                        setSelectOption([
+                        setSelectOptions([
                             { label: 'Assessment', value: 'assessment' },
                             { label: 'Roadmap', value: 'roadmap' },
-                            { label: 'BioCanAi', value: 'biocanai' },
+                            { label: 'BioCanAi', value: 'chat' },
                         ]);
 
                         if (pathName.includes('assessment')) {
                             router.replace('/report')
                         }
                     } else {
-                        setSelectOption([
+                        setSelectOptions([
                             { label: 'Assessment', value: 'assessment' },
                         ]);
                     }
@@ -88,9 +105,26 @@ const Navbar: React.FC<{
             setIsDrawerOpen((prev) => !prev);
         };
 
-        const handleAssessmentSelect = (selectedOption: { value: string; label: string } | null) => {
+        const handleAssessmentSelect = (selectedOption: ReactSelectOptionType | null) => {
 
-            router.replace(selectedOption?.value || "")
+            if (selectedOption?.value === "roadmap") {
+                router.replace("/roadmap")
+            }
+
+            if (selectedOption?.value === "assessment") {
+                if (SelectOptions.length > 1) {
+                    router.replace("/report")
+                } else {
+
+                    router.replace("/assessment")
+                }
+            }
+
+            if (selectedOption?.value === "chat") {
+                router.replace("/chat")
+            }
+
+
 
             if (onAssessmentChange) {
                 onAssessmentChange(selectedOption);
@@ -124,8 +158,9 @@ const Navbar: React.FC<{
                     {showDropdown && (
                         <div className="relative w-48">
                             <Select
+                                value={SelectedOption}
                                 instanceId="navbar_dropdown"
-                                options={SelectOption}
+                                options={SelectOptions}
                                 onChange={handleAssessmentSelect}
                                 defaultValue={defaultAssessmentValue}
                                 placeholder="Assessments"

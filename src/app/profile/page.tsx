@@ -322,8 +322,8 @@ const ProfilePage = () => {
                         {/* Profile Header */}
                         <div className="bg-white rounded-lg shadow-md p-4 mb-4 flex flex-col items-center relative">
                             <FaUserCircle size={80} className="text-gray-400" />
-                            <h2 className="text-xl font-bold mt-2 text-black">{user?.displayName || 'User'}</h2>
-                            <p className="text-black">BioCAN ID - ABNH8283</p>
+                            <h2 className="text-xl font-bold mt-2 text-[#2973B2F2]">{user?.displayName || 'User'}</h2>
+                            <p className="text-[#2973B2F2] text-sm">BioCAN ID - {user?.uid?.slice(0, 8)?.toUpperCase()}</p>
 
                             {activeTab === 'general' && (
                                 <button
@@ -337,24 +337,24 @@ const ProfilePage = () => {
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex border-b mb-4">
+                        <div className="flex border-b mb-4 justify-center">
                             <button
                                 onClick={() => setActiveTab('general')}
                                 className={`px-4 py-2 font-semibold hover:cursor-pointer ${activeTab === 'general' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-black'}`}
                             >
-                                General Info
+                                Account
                             </button>
                             <button
                                 onClick={() => setActiveTab('academic')}
                                 className={`px-4 py-2 font-semibold hover:cursor-pointer ${activeTab === 'academic' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-black'}`}
                             >
-                                Academic Info
+                                Education
                             </button>
                             <button
                                 onClick={() => setActiveTab('job')}
                                 className={`px-4 py-2 font-semibold hover:cursor-pointer ${activeTab === 'job' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-black'}`}
                             >
-                                Job Info
+                                Professional
                             </button>
                         </div>
 

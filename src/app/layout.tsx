@@ -15,7 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Biocan.ai',
-  description: 'Biocan.ai - The AI of future.'
+  description: 'Biocan.ai - The AI of future.',
+  icons: {
+    icon: 'public/favicon.ico'
+  }
 };
 
 export default function RootLayout({

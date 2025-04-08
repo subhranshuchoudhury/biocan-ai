@@ -260,7 +260,7 @@ export default function ReportPage() {
             </div>
 
             <div className="sticky bottom-0 bg-transparent flex items-center justify-center p-4">
-                <button className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors hover:cursor-pointer shadow shadow-black">
+                <button onClick={() => router.push('/roadmap')} className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors hover:cursor-pointer shadow shadow-black">
                     See Suggested Jobs
                 </button>
             </div>
