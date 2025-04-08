@@ -57,6 +57,7 @@ export default function RoadMap() {
     const [openSection, setOpenSection] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
     const [selectedExpert, setSelectedExpert] = useState(null);
+    const [hideOnNavBarOpen, setHideonNavOpen] = useState(false);
 
 
     const toggleSection = (index) => {
@@ -77,7 +78,9 @@ export default function RoadMap() {
     return (
         <div className="min-h-screen bg-[#fff] flex flex-col">
             <div className="sticky top-0">
-                <Navbar />
+                <Navbar onChangeDrawer={(value) => {
+                    setHideonNavOpen(value)
+                }} />
             </div>
             <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
                 {
@@ -143,26 +146,29 @@ export default function RoadMap() {
                                     })
                                 }
                             </div>
-                            <div className="relative flex justify-center w-fit mx-auto p-2 flex-row gap-x-7 mt-8 hover:cursor-not-allowed">
-                                {/* Mapped Job Openings */}
-                                {
-                                    JobData.current_openings.map((openings, index) => {
-                                        return (
-                                            <div key={index} className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md w-40">
-                                                <div className="w-22 h-22">
-                                                    <p className="text-black text-md">{openings.job_name}</p>
-                                                    <p className="text-slate-700 text-sm">{openings.company}</p>
+                            {
+                                !hideOnNavBarOpen && <div className="relative flex justify-center w-fit mx-auto p-2 flex-row gap-x-7 mt-8 hover:cursor-not-allowed">
+                                    {/* Mapped Job Openings */}
+                                    {
+                                        JobData.current_openings.map((openings, index) => {
+                                            return (
+                                                <div key={index} className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md w-40">
+                                                    <div className="w-22 h-22">
+                                                        <p className="text-black text-md">{openings.job_name}</p>
+                                                        <p className="text-slate-700 text-sm">{openings.company}</p>
+                                                    </div>
+                                                    <p className="mt-2 text-center text-blue-400 underline text-sm">Know More</p>
                                                 </div>
-                                                <p className="mt-2 text-center text-blue-400 underline text-sm">Know More</p>
-                                            </div>
-                                        );
-                                    })
-                                }
-                                {/* Gray Overlay with Lock Icon */}
-                                <div className="absolute inset-0 bg-black opacity-40 flex items-center justify-center rounded-md">
-                                    <FaLock size={40} />
+                                            );
+                                        })
+                                    }
+                                    {/* Gray Overlay with Lock Icon */}
+                                    <div className="absolute inset-0 bg-black opacity-40 flex items-center justify-center rounded-md">
+                                        <FaLock size={40} />
+                                    </div>
                                 </div>
-                            </div>
+                            }
+
                         </div>
                     </div>
                 }
