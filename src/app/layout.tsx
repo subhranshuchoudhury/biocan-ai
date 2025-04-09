@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { twJoin } from 'tailwind-merge';
 import './globals.css';
+import { Suspense } from 'react';
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin']
@@ -27,16 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        suppressHydrationWarning
-        className={twJoin(geistSans.variable, geistMono.variable, 'antialiased')}>
-        <AuthProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <Suspense fallback={null}>
+      <html lang="en">
+        <body
+          suppressHydrationWarning
+          className={twJoin(geistSans.variable, geistMono.variable, 'antialiased')}>
+          <AuthProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </AuthProvider>
+        </body>
+      </html>
+    </Suspense>
   );
 }
