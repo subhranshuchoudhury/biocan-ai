@@ -4,9 +4,11 @@ import Navbar from "@/components/navbar";
 import { useAuth } from "@/providers";
 import { IoSend } from "react-icons/io5";
 import { FaLock } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { RxCross1 } from "react-icons/rx";
+import { useSearchParams } from "next/navigation";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 const sections = [
     { title: 'Skills & Tools Needed', key: 'skills_and_tools' },
     { title: 'Education & Learning Paths', key: 'education_and_learning_paths' },
@@ -14,38 +16,49 @@ const sections = [
     { title: 'Resources & Courses', key: 'resources_and_courses' },
 ];
 
-const JobData = {
-    job_role: {
-        title: "Clinical Data Management Associate",
-        short_description: "Data Scientists analyze complex data to help organizations make informed decisions and predict future trends."
+// const JobData = {
+//     job_role: {
+//         title: "Clinical Data Management Associate",
+//         short_description: "Data Scientists analyze complex data to help organizations make informed decisions and predict future trends."
+//     },
+//     content: {
+//         skills_and_tools: "Proficiency in programming languages such as Python and R; experience with data visualization tools; knowledge of machine learning algorithms.",
+//         education_and_learning_paths: "Bachelor's or Master's degree in Computer Science, Statistics, or related fields; specialized courses in data analysis and machine learning.",
+//         salary_and_market_demand: "Competitive salary with high demand across various industries.",
+//         resources_and_courses: "Online platforms like Coursera and edX offer courses such as 'Data Science Specialization'; books like 'The Elements of Statistical Learning'."
+//     },
+//     experts: [
+//         {
+//             name: "John Doe",
+//             picture_url: "/assets/profile.jpeg"
+//         },
+//         {
+//             name: "Jane Smith",
+//             picture_url: "/assets/profile.jpeg"
+//         }
+//     ],
+//     current_openings: [
+//         {
+//             job_name: "Junior CDMA",
+//             company: "TechCorp"
+//         },
+//         {
+//             job_name: "Senior CDMA",
+//             company: "InnovateX"
+//         }
+//     ]
+// }
+
+const demoCurrentOpenings = [
+    {
+        job_name: "Junior CDMA",
+        company: "TechCorp"
     },
-    content: {
-        skills_and_tools: "Proficiency in programming languages such as Python and R; experience with data visualization tools; knowledge of machine learning algorithms.",
-        education_and_learning_paths: "Bachelor's or Master's degree in Computer Science, Statistics, or related fields; specialized courses in data analysis and machine learning.",
-        salary_and_market_demand: "Competitive salary with high demand across various industries.",
-        resources_and_courses: "Online platforms like Coursera and edX offer courses such as 'Data Science Specialization'; books like 'The Elements of Statistical Learning'."
-    },
-    experts: [
-        {
-            name: "John Doe",
-            picture_url: "/assets/profile.jpeg"
-        },
-        {
-            name: "Jane Smith",
-            picture_url: "/assets/profile.jpeg"
-        }
-    ],
-    current_openings: [
-        {
-            job_name: "Junior CDMA",
-            company: "TechCorp"
-        },
-        {
-            job_name: "Senior CDMA",
-            company: "InnovateX"
-        }
-    ]
-}
+    {
+        job_name: "Senior CDMA",
+        company: "InnovateX"
+    }
+]
 
 const tabs = [
     { name: "Job Info", locked: false },
@@ -54,10 +67,47 @@ const tabs = [
 ];
 export default function RoadMap() {
     const { user } = useAuth();
+    const params = useSearchParams();
+    const jobName = params.get('name')
     const [openSection, setOpenSection] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
-    const [selectedExpert, setSelectedExpert] = useState(null);
+    const [selectedExpert, setSelectedExpert] = useState<any>(null);
     const [hideOnNavBarOpen, setHideonNavOpen] = useState(false);
+    const [JobDetails, setJobDetails] = useState<any>(null);
+    const [Loading, setLoading] = useState(true);
+
+
+    const getJobDetails = async (jobName: string) => {
+        try {
+            const options = {
+                method: 'GET',
+            };
+            setLoading(true)
+
+
+
+            const response = await fetch(`https://biocan-backend.onrender.com/get_job_role_page?job_role=${jobName}`, options)
+            const data = await response.json();
+            setJobDetails(data);
+            console.log(data)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+
+
+
+        if (jobName) {
+
+            getJobDetails(jobName);
+        }
+
+    }, [jobName])
+
 
 
     const toggleSection = (index) => {
@@ -86,7 +136,7 @@ export default function RoadMap() {
                 {
                     <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
                         <div>
-                            <p className="text-black text-center font-bold underline text-lg mb-5">{JobData.job_role.title}</p>
+                            <p className="text-black text-center font-bold underline text-xl mb-5">{jobName}</p>
 
                             <div className="flex justify-evenly max-w-xl mx-auto mt-8 bg-[#F3F3F3] p-2 rounded-md shadow shadow-slate-400">
                                 <div className="flex flex-row items-center gap-x-4 w-full justify-evenly">
@@ -107,13 +157,13 @@ export default function RoadMap() {
                             </div>
                             <div className="flex justify-center max-w-xl mx-auto mt-3 p-2">
                                 <p className="text-black text-sm font-medium">
-                                    {JobData.job_role.short_description}
+                                    {JobDetails && JobDetails?.job_role?.short_description}
                                 </p>
 
                             </div>
 
                             <div className="flex justify-center max-w-xl mx-auto mt-3 p-2 flex-col">
-                                {sections.map((section, index) => (
+                                {JobDetails && sections.map((section, index) => (
                                     <div key={index} className="mb-2 shadow shadow-slate-400 rounded-md">
                                         <button
                                             onClick={() => toggleSection(index)}
@@ -127,20 +177,26 @@ export default function RoadMap() {
                                         </button>
                                         {openSection === index && (
                                             <div className="p-4 bg-white rounded-lg shadow mt-2">
-                                                <p className="text-gray-700">{JobData.content[section.key]}</p>
+                                                <p className="text-gray-700">{JobDetails?.content[section.key]}</p>
                                             </div>
                                         )}
                                     </div>
                                 ))}
                             </div>
 
-                            <p className="text-black text-center font-bold text-lg mt-5">Connect with Experts in this Role</p>
+                            {
+                                Loading ? <span className="flex justify-center items-center animate-spin">
+                                    <AiOutlineLoading3Quarters color="#000" size={30} />
+                                </span> : <p className="text-black text-center font-bold text-lg mt-5">Connect with Experts in this Role</p>
+                            }
+
+
 
                             <div className="flex justify-center max-w-xl mx-auto mt-3 p-2 flex-row gap-x-7">
                                 {
-                                    JobData.experts.map((expert, index) => {
+                                    JobDetails && JobDetails.experts.map((expert, index) => {
                                         return <div onClick={() => handlePopup(expert)} key={index} className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md hover:cursor-pointer">
-                                            <img src="/assets/profile.jpeg" alt="expert_image" width={22} height={22} className="w-22 h-22 object-cover" />
+                                            <img src={expert?.picture_url ?? "/assets/profile.jpeg"} alt="expert_image" width={22} height={22} className="w-22 h-22 object-cover" />
                                             <p className="mt-2 text-center text-black text-sm">{expert.name}</p>
                                         </div>
                                     })
@@ -150,7 +206,7 @@ export default function RoadMap() {
                                 !hideOnNavBarOpen && <div className="relative flex justify-center w-fit mx-auto p-2 flex-row gap-x-7 mt-8 hover:cursor-not-allowed">
                                     {/* Mapped Job Openings */}
                                     {
-                                        JobData.current_openings.map((openings, index) => {
+                                        !Loading && demoCurrentOpenings && demoCurrentOpenings.map((openings, index) => {
                                             return (
                                                 <div key={index} className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md w-40">
                                                     <div className="w-22 h-22">
@@ -163,9 +219,13 @@ export default function RoadMap() {
                                         })
                                     }
                                     {/* Gray Overlay with Lock Icon */}
-                                    <div className="absolute inset-0 bg-black opacity-40 flex items-center justify-center rounded-md">
-                                        <FaLock size={40} />
-                                    </div>
+
+                                    {
+                                        !Loading && <div className="absolute inset-0 bg-black opacity-40 flex items-center justify-center rounded-md">
+                                            <FaLock size={40} />
+                                        </div>
+                                    }
+
                                 </div>
                             }
 
@@ -198,13 +258,13 @@ export default function RoadMap() {
                         </div>
                         <div className="flex flex-col items-center">
                             <img
-                                src={"/assets/profile.jpeg"}
+                                src={selectedExpert?.picture_url ?? "/assets/profile.jpeg"}
                                 alt="expert_image"
                                 width={100}
                                 height={100}
                                 className="w-24 h-24 object-cover rounded-full mb-4"
                             />
-                            <h2 className="text-lg font-bold text-black">John Doe</h2>
+                            <h2 className="text-lg font-bold text-black">{selectedExpert?.name}</h2>
                             <p className="text-sm text-gray-600 mb-4">{"Expert"}</p>
                             <p className="text-sm text-gray-700 mb-4 text-center">
                                 John Doe life has been a journey of courage, compassion and constant hardwork. At a very young age he had decided to devote his life in service of the people. He displayed his skills as a grass root level worker, an organiser and an administrator during his 13 year long stint as the Chief Minister.

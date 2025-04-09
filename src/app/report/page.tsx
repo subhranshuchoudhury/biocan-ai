@@ -112,7 +112,7 @@ export default function ReportPage() {
                 if (reportSnap.exists()) {
                     setData(reportSnap.data().apiResponse as ReportData);
                 } else {
-                    // router.push('/assessment');
+                    router.replace('/assessment');
                 }
             } catch (error) {
                 console.error("Error fetching report:", error);

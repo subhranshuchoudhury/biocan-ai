@@ -36,7 +36,7 @@ const Navbar: React.FC<{
         const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
         const [SelectOptions, setSelectOptions] = useState(assessmentOptions)
         const [SelectedOption, setSelectedOption] = useState<ReactSelectOptionType>({ label: "", value: "" })
-        const { user } = useAuth();
+        const { user, loading } = useAuth();
         const router = useRouter();
         const pathName = usePathname();
 
@@ -50,13 +50,33 @@ const Navbar: React.FC<{
                 setSelectedOption({ label: "Assessment", value: "assessment" })
             if (pathName.includes('chat'))
                 setSelectedOption({ label: "BioCanAi", value: "chat" })
-        }, [pathName])
+        }, [pathName, user]);
+
+
+        useEffect(() => {
+            if (!loading) {
+                if (!user?.uid) {
+                    if (!pathName.includes("roadmap/job"))
+                        router.replace("/login")
+                }
+            }
+        }, [loading])
+
+
+
+
 
 
         useEffect(() => {
             const checkUserReport = async () => {
                 if (!user?.uid) {
+                    setSelectOptions([
+                    ]);
                     return;
+                } else {
+                    setSelectOptions([
+                        { label: 'Assessment', value: 'assessment' },
+                    ]);
                 }
                 try {
                     const reportRef = doc(db, "reports", user.uid);
