@@ -7,11 +7,13 @@ export const sections: Section[] = [
         section: "Basic Information",
         questions: [
             { id: "S1QID1", question: "What is your name?", inputType: "text" },
+            { id: "S1QID6", question: "What is your email address?", inputType: "text" },
+            { id: "S1QID6", question: "What is your date of birth?", inputType: "date" },
             { id: "S1QID2", question: "What is your gender?", inputType: "radio", options: ["Male", "Female", "Other"] },
-            { id: "S1QID3", question: "What is your address?", inputType: "text" },
+            { id: "S1QID3", question: "What is your state?", inputType: "text" },
+            { id: "S1QID4", question: "What is your city?", inputType: "text" },
             { id: "S1QID4", question: "What is your pincode?", inputType: "text" },
             { id: "S1QID5", question: "What is your mobile number?", inputType: "text" },
-            { id: "S1QID6", question: "What is your email address?", inputType: "text" },
             { id: "S1QID7", question: "What defines you best?", inputType: "radio", options: ["Currently Studying", "Recently Graduated", "Working Professional"] }
         ]
     },
@@ -22,7 +24,6 @@ export const sections: Section[] = [
         questions: [
             { id: "A1QID1", question: "What was your high school stream?", inputType: "dropdown", options: ["Science with Biology", "Science without Biology", "Commerce", "Arts"] },
             { id: "A1QID2", question: "What was your high school percentage?", inputType: "text" },
-            { id: "A1QID6", question: "Have you done any internships or part-time jobs?", inputType: "radio", options: ["Yes", "No"] },
         ]
     },
     {
@@ -47,7 +48,7 @@ export const sections: Section[] = [
         section: "Extra Course Information",
         questions: [
             {
-                id: "A1QID4", question: `Lets fill your extra course information. </br><i style="color: gray; font-size: 12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "CourseID", question: `<b>What was your course name?</b> </br> <i style="color:gray;font-size:12px">Type N/A if not applied to you.</i>`, inputType: "text" }]
+                id: "A1QID4", question: `Lets fill your extra course information. </br><i style="color: gray; font-size: 12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "CourseID", question: `What was your course name? </br> <i style="color:gray;font-size:12px">Type N/A if not applied to you.</i>`, inputType: "text" }]
             },
         ]
     },
@@ -55,7 +56,14 @@ export const sections: Section[] = [
         id: "SEC2_2_1",
         section: "Extracurricular Information",
         questions: [
-            { id: "A1QID5", question: `Lets fill your extracurricular activities.</br><i style="color:gray;font-size:12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "ActivityID", question: "Activity Name", inputType: "text" }] },
+            { id: "A1QID5", question: `Lets fill your extracurricular activities.</br><i style="color:gray;font-size:12px">Press Enter/Send button to start the chat.</i>`, inputType: "array", fields: [{ id: "ActivityID", question: `What was your activity name? </br> <i style="color: gray; font- size: 12px">Type N/A if not applied to you.</i>`, inputType: "text" }] },
+        ]
+    },
+    {
+        id: "SEC_2_1_1",
+        section: "Internship Confirmation",
+        questions: [
+            { id: "A1QID6", question: "Have you done any internships or part-time jobs?", inputType: "radio", options: ["Yes", "No"] },
         ]
     },
     {
@@ -126,6 +134,12 @@ export const sections: Section[] = [
         id: "SEC6",
         section: " Personality Test (MBTI Based)",
         questions: [
+            {
+                "id": "S6PTQ0",
+                "inputType": "radio",
+                "question": "You will be asked 80 Questions and you have to choose either (A) or (B). It will take 30 Mins.",
+                "options": ["Start"]
+            },
             {
                 "id": "S6PTQ1",
                 inputType: "radio",
@@ -620,7 +634,7 @@ export const sections: Section[] = [
             {
                 "id": "S7BFQ0",
                 "inputType": "radio",
-                "question": "You will be asked 60 Question and you have to choose one from four options.",
+                "question": "You will be asked 60 Questions and you have to choose one from four options. It will take 20 mins.",
                 "options": ["Start"]
             },
             {

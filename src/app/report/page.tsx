@@ -180,6 +180,20 @@ export default function ReportPage() {
         );
     }
 
+    const order = ["Energy", "Information", "Decisions", "Structure"];
+    const colors = ["bg-green-100", "bg-sky-100", "bg-red-100", "bg-yellow-100"];
+
+    const sortedTraits = order.map((key, index) => ({
+        key,
+        value: data.mbti.traits[key],
+        bgColor: colors[index]
+    }));
+
+
+
+
+
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <div className="sticky top-0 z-10">
@@ -197,10 +211,10 @@ export default function ReportPage() {
                         MBTI: <span className="text-blue-600 font-medium">{data.mbti.type}</span>
                     </h2>
                     <div className="grid grid-cols-1 gap-4 mb-4">
-                        {Object.entries(data.mbti.traits).map(([key, value]) => (
-                            <div key={key} className="bg-blue-50 p-3 rounded-md justify-between flex">
+                        {sortedTraits.map(({ key, value, bgColor }) => (
+                            <div key={key} className={`${bgColor} p-3 rounded-md justify-between flex`}>
                                 <span className="font-bold text-blue-800">{key}</span>
-                                <span className="ml-2 text-blue-600">{value}</span>
+                                <span className="ml-2 text-black">{value}</span>
                             </div>
                         ))}
                     </div>
@@ -261,7 +275,7 @@ export default function ReportPage() {
 
             <div className="sticky bottom-0 bg-transparent flex items-center justify-center p-4">
                 <button onClick={() => router.push('/roadmap')} className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors hover:cursor-pointer shadow shadow-black">
-                    See Suggested Jobs
+                    Explore Suggested Jobs
                 </button>
             </div>
         </div>

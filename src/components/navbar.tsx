@@ -111,6 +111,9 @@ const Navbar: React.FC<{
         };
 
         const handleLogout = async () => {
+            const confirmLogout = window.confirm("Are you sure you want to log out?");
+            if (!confirmLogout) return; // Exit if user cancels
+
             try {
                 await signOut(auth);
                 setIsPopupOpen(false);
@@ -241,12 +244,12 @@ const Navbar: React.FC<{
                                 >
                                     Profile
                                 </a>
-                                <a
+                                {/* <a
                                     href="/contact-us"
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     Contact Us
-                                </a>
+                                </a> */}
                                 <button
                                     onClick={handleLogout}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
@@ -276,6 +279,14 @@ const Navbar: React.FC<{
 
                     {/* Drawer Menu Items */}
                     <div className="flex-1 p-4 space-y-2">
+                        <a
+                            href="/contact-us"
+                            className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-200 rounded"
+                            onClick={handleToggleDrawer}
+                        >
+                            <FaEnvelope size={16} />
+                            Contact Us
+                        </a>
                         <a
                             href="/terms"
                             className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-200 rounded"
