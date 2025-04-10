@@ -1,7 +1,6 @@
 'use client';
 
 import Navbar from "@/components/navbar";
-import { useAuth } from "@/providers";
 import { IoSend } from "react-icons/io5";
 import { FaLock } from "react-icons/fa6";
 import { useEffect, useState } from "react";
@@ -18,24 +17,17 @@ const sections = [
 ];
 
 const demoCurrentOpenings = [
-    {
-        job_name: "Junior CDMA",
-        company: "TechCorp"
-    },
-    {
-        job_name: "Senior CDMA",
-        company: "InnovateX"
-    }
+    { job_name: "Junior CDMA", company: "TechCorp" },
+    { job_name: "Senior CDMA", company: "InnovateX" },
 ];
 
 const tabs = [
     { name: "Job Info", locked: false },
     { name: "My Suitability", locked: true },
-    { name: "Roadmap", locked: true }
+    { name: "Roadmap", locked: true },
 ];
 
 export default function RoadMap() {
-    const { user } = useAuth();
     const params = useSearchParams();
     const jobName = params.get('name');
     const [openSection, setOpenSection] = useState(null);
@@ -45,12 +37,11 @@ export default function RoadMap() {
     const [jobDetails, setJobDetails] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [expertLoading, setExpertLoading] = useState(false);
+    const [showCalendarEmbed, setShowCalendarEmbed] = useState(true); // Toggle iframe vs button
 
     const getJobDetails = async (jobName) => {
         try {
-            const options = {
-                method: 'GET',
-            };
+            const options = { method: 'GET' };
             setLoading(true);
             const response = await fetch(`https://biocan-backend.onrender.com/get_job_role_page?job_role=${jobName}`, options);
             const data = await response.json();
@@ -69,12 +60,13 @@ export default function RoadMap() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'User-Agent': 'insomnia/11.0.2'
                 },
-                body: new URLSearchParams({ name: expertName })
+                body: new URLSearchParams({ name: expertName }),
             };
-
-            const response = await fetch(`https://biocan-backend.onrender.com/get_expert_page?name=${encodeURIComponent(expertName)}`, options);
+            const response = await fetch(
+                `https://biocan-backend.onrender.com/get_expert_page?name=${encodeURIComponent(expertName)}`,
+                options
+            );
             const data = await response.json();
             return data.expert;
         } catch (error) {
@@ -100,26 +92,29 @@ export default function RoadMap() {
         const expertDetails = await getExpertDetails(expert.name);
         if (expertDetails) {
             setSelectedExpert(expertDetails);
+            setShowCalendarEmbed(true); // Show embed by default
         }
     };
 
     const closePopup = () => {
         setShowPopup(false);
         setSelectedExpert(null);
+        setShowCalendarEmbed(true);
     };
 
     return (
         <div className="min-h-screen bg-[#fff] flex flex-col">
             <div className="sticky top-0">
-                <Navbar onChangeDrawer={(value) => {
-                    setHideonNavOpen(value);
-                }} />
+                <Navbar
+                    onChangeDrawer={(value) => {
+                        setHideonNavOpen(value);
+                    }}
+                />
             </div>
             <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
                 <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
                     <div>
                         <p className="text-black text-center font-bold underline text-xl mb-5">{jobName}</p>
-
                         <div className="flex justify-evenly max-w-xl mx-auto mt-8 bg-[#F3F3F3] p-2 rounded-md shadow shadow-slate-400">
                             <div className="flex flex-row items-center gap-x-4 w-full justify-evenly">
                                 {tabs.map((tab) => (
@@ -141,29 +136,28 @@ export default function RoadMap() {
                                 {jobDetails && jobDetails?.job_role?.short_description}
                             </p>
                         </div>
-
                         <div className="flex justify-center max-w-xl mx-auto mt-3 p-2 flex-col">
-                            {jobDetails && sections.map((section, index) => (
-                                <div key={index} className="mb-2 shadow shadow-slate-400 rounded-md">
-                                    <button
-                                        onClick={() => toggleSection(index)}
-                                        className="w-full text-left p-2 bg-gray-100 rounded-lg flex justify-between hover:cursor-pointer items-center focus:outline-none hover:bg-gray-200 transition duration-300"
-                                    >
-                                        <span className="font-medium text-black text-sm">{section.title}</span>
-                                        <FaChevronDown
-                                            color="#000"
-                                            className={`transition-transform duration-300 ${openSection === index ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    {openSection === index && (
-                                        <div className="p-4 bg-white rounded-lg shadow mt-2">
-                                            <p className="text-gray-700">{jobDetails?.content[section.key]}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                            {jobDetails &&
+                                sections.map((section, index) => (
+                                    <div key={index} className="mb-2 shadow shadow-slate-400 rounded-md">
+                                        <button
+                                            onClick={() => toggleSection(index)}
+                                            className="w-full text-left p-2 bg-gray-100 rounded-lg flex justify-between hover:cursor-pointer items-center focus:outline-none hover:bg-gray-200 transition duration-300"
+                                        >
+                                            <span className="font-medium text-black text-sm">{section.title}</span>
+                                            <FaChevronDown
+                                                color="#000"
+                                                className={`transition-transform duration-300 ${openSection === index ? 'rotate-180' : ''}`}
+                                            />
+                                        </button>
+                                        {openSection === index && (
+                                            <div className="p-4 bg-white rounded-lg shadow mt-2">
+                                                <p className="text-gray-700">{jobDetails?.content[section.key]}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                         </div>
-
                         {loading ? (
                             <span className="flex justify-center items-center animate-spin">
                                 <AiOutlineLoading3Quarters color="#000" size={30} />
@@ -171,30 +165,32 @@ export default function RoadMap() {
                         ) : (
                             <p className="text-black text-center font-bold text-lg mt-5">Connect with Experts in this Role</p>
                         )}
-
                         <div className="flex justify-center max-w-xl mx-auto mt-3 p-2 flex-row gap-x-7">
-                            {jobDetails && jobDetails.experts.map((expert, index) => (
-                                <div
-                                    onClick={() => handlePopup(expert)}
-                                    key={index}
-                                    className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md hover:cursor-pointer"
-                                >
-                                    <img
-                                        src={expert?.picture_url ?? "/assets/profile.jpeg"}
-                                        alt="expert_image"
-                                        width={22}
-                                        height={22}
-                                        className="w-22 h-22 object-cover"
-                                    />
-                                    <p className="mt-2 text-center text-black text-sm">{expert.name}</p>
-                                </div>
-                            ))}
+                            {jobDetails &&
+                                jobDetails.experts.map((expert, index) => (
+                                    <div
+                                        onClick={() => handlePopup(expert)}
+                                        key={index}
+                                        className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md hover:cursor-pointer"
+                                    >
+                                        <img
+                                            src={expert?.picture_url ?? "/assets/profile.jpeg"}
+                                            alt="expert_image"
+                                            width={22}
+                                            height={22}
+                                            className="w-22 h-22 object-cover"
+                                        />
+                                        <p className="mt-2 text-center text-black text-sm">{expert.name}</p>
+                                    </div>
+                                ))}
                         </div>
-
-                        {!hideOnNavBarOpen && (
+                        {!hideOnNavBarOpen && !loading && (
                             <div className="relative flex justify-center w-fit mx-auto p-2 flex-row gap-x-7 mt-8 hover:cursor-not-allowed">
                                 {demoCurrentOpenings.map((openings, index) => (
-                                    <div key={index} className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md w-40">
+                                    <div
+                                        key={index}
+                                        className="flex flex-col items-center bg-[#F3F3F3] p-3 shadow shadow-slate-400 rounded-md w-40"
+                                    >
                                         <div className="w-22 h-22">
                                             <p className="text-black text-md">{openings.job_name}</p>
                                             <p className="text-slate-700 text-sm">{openings.company}</p>
@@ -211,7 +207,6 @@ export default function RoadMap() {
                         )}
                     </div>
                 </div>
-
                 <div className="flex w-full justify-between shadow-md border border-[#bebebe] rounded-full bg-white">
                     <input
                         placeholder="Type your message"
@@ -222,11 +217,10 @@ export default function RoadMap() {
                     </button>
                 </div>
             </div>
-
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="absolute inset-0 bg-black opacity-90"></div>
-                    <div className="bg-white p-6 pt-4 rounded-lg shadow-lg w-[300px] z-10 relative">
+                    <div className="bg-white p-6 pt-4 rounded-lg shadow-lg w-[80%] max-h-[90vh] overflow-y-auto z-10 relative">
                         <div
                             onClick={closePopup}
                             className="flex justify-end cursor-pointer"
@@ -240,7 +234,7 @@ export default function RoadMap() {
                         ) : (
                             <div className="flex flex-col items-center">
                                 <img
-                                    src={selectedExpert?.photo_link}
+                                    src={selectedExpert?.photo_link ?? "/assets/profile.jpeg"}
                                     alt="expert_image"
                                     width={100}
                                     height={100}
@@ -261,14 +255,38 @@ export default function RoadMap() {
                                         </span>
                                     ))}
                                 </div>
-                                <a
-                                    href={selectedExpert?.book_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-600 transition-colors"
-                                >
-                                    Book a Session
-                                </a>
+                                <div className="w-full mb-4">
+                                    {showCalendarEmbed && selectedExpert?.book_link ? (
+                                        <>
+                                            <div className="relative w-full h-[500px] bg-gray-100 rounded-md">
+                                                <iframe
+                                                    src={selectedExpert.book_link}
+                                                    title="Book a Session with Calendly/Google"
+                                                    className="w-full h-full rounded-md"
+                                                    sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation"
+                                                    onError={() => setShowCalendarEmbed(false)}
+                                                ></iframe>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    window.open(selectedExpert?.book_link, "_blank");
+                                                }}
+                                                className="mt-2 text-blue-500 text-sm underline w-full text-center hover:cursor-pointer"
+                                            >
+                                                Open booking in new tab
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <a
+                                            href={selectedExpert?.book_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-600 transition-colors inline-block w-full text-center"
+                                        >
+                                            Book a Session
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
