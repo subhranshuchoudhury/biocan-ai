@@ -220,7 +220,7 @@ export default function RoadMap() {
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="absolute inset-0 bg-black opacity-90"></div>
-                    <div className="bg-white p-6 pt-4 rounded-lg shadow-lg w-[80%] max-h-[90vh] overflow-y-auto z-10 relative">
+                    <div className="bg-white p-6 pt-4 rounded-lg shadow-lg w-[95%] max-h-[90vh] overflow-y-auto z-10 relative">
                         <div
                             onClick={closePopup}
                             className="flex justify-end cursor-pointer"

@@ -61,7 +61,7 @@ const SignInPage = () => {
             }`}
         >
           <FcGoogle size={28} />
-          <span>{isLoading ? 'Signing In...' : loading ? "Please wait..." : 'Continue with Google'}</span>
+          <span>{isLoading || user?.uid ? 'Signing In...' : loading ? "Please wait..." : 'Continue with Google'}</span>
         </button>
         <p className="w-[350px] text-sm">
           By continuing, you agree to our{' '}
