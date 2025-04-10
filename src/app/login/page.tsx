@@ -13,7 +13,7 @@ const SignInPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
 
   const login = async () => {
@@ -56,12 +56,12 @@ const SignInPage = () => {
         )}
         <button
           onClick={login}
-          disabled={isLoading}
-          className={`flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black hover:cursor-pointer transition-opacity ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+          disabled={isLoading || loading}
+          className={`flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black hover:cursor-pointer transition-opacity ${isLoading || loading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
             }`}
         >
           <FcGoogle size={28} />
-          <span>{isLoading ? 'Signing In...' : 'Continue with Google'}</span>
+          <span>{isLoading ? 'Signing In...' : loading ? "Please wait..." : 'Continue with Google'}</span>
         </button>
         <p className="w-[350px] text-sm">
           By continuing, you agree to our{' '}

@@ -7,8 +7,7 @@ import { getMBTIScore } from "@/helper/mbti-score";
 import { calculateBigFiveScores } from "@/helper/ocean-score";
 import { useAuth } from "@/providers";
 import { sections } from "@/questions/question";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
+import { doc, setDoc } from "firebase/firestore";
 import { useState, useEffect, useRef } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoSend } from "react-icons/io5";
@@ -30,7 +29,7 @@ interface ArrayEntry {
 }
 
 export default function ChatPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [responses, setResponses] = useState<{ [key: string]: any }>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [textInput, setTextInput] = useState<string>('');
@@ -46,11 +45,10 @@ export default function ChatPage() {
   const [currentArraySectionId, setCurrentArraySectionId] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [entryCount, setEntryCount] = useState<{ [sectionId: string]: number }>({});
-  const [IsReportAvailable, setIsReportAvailable] = useState(false);
   const [ReadyToSubmit, setReadyToSubmit] = useState(false);
   const [SubmittingData, setSubmittingData] = useState(false);
   const [IsDrawerOpened, setIsDrawerOpened] = useState(false);
-  const router = useRouter();
+
 
 
   // useEffect(() => {
@@ -578,9 +576,10 @@ export default function ChatPage() {
         return (
           <div className="flex w-full justify-between shadow-md border border-[#bebebe] rounded-full bg-white">
             <input
+              disabled={loading || SubmittingData}
               ref={inputRef as React.RefObject<HTMLInputElement>}
               value={textInput}
-              placeholder="Type your message"
+              placeholder={loading || SubmittingData ? "Please wait..." : "Type your message"}
               className="flex-1 py-3 px-4 border-0 rounded-full focus:outline-none text-black bg-white"
               onChange={(e) => {
                 setTextInput(e.target.value);
@@ -589,7 +588,7 @@ export default function ChatPage() {
               onKeyDown={handleTextKeyPress}
             />
             <button type="button" className="p-2 rounded-full hover:cursor-pointer transition-colors" onClick={handleNext}>
-              <IoSend color="#155dfc" size={20} />
+              <IoSend color={loading || SubmittingData ? "gray" : "#155dfc"} size={20} />
             </button>
           </div>
         );
@@ -733,14 +732,19 @@ export default function ChatPage() {
       </div>
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-2">
         {
-          !IsReportAvailable ? <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
+          <div className="flex-1 bg-[url(/assets/chat-bg.svg)] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
 
 
+            <div className="mb-4 text-left">
+              <div className="inline-block p-3 rounded-lg text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                Hello {user?.displayName},<br></br>Lets begin with your assessment.
+              </div>
+            </div>
             {chatMessages.map((message, idx) => (
               <div key={idx}>
                 {message.type === "question" && (
                   <div className="mb-4 text-left">
-                    <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                    <div dangerouslySetInnerHTML={{ __html: message.content }} className="inline-block p-3 rounded-lg text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
 
 
                     </div>
@@ -755,7 +759,7 @@ export default function ChatPage() {
                 )}
                 {message.type === "system" && (
                   <div className="mb-4 text-center">
-                    <div className="inline-block p-2 rounded-md bg-gray-200 text-gray-700 text-sm">
+                    <div className="inline-block p-2 rounded-md text-gray-700 text-sm">
                       {message.content}
                     </div>
                   </div>
@@ -765,7 +769,7 @@ export default function ChatPage() {
 
             {!showAddMorePrompt && inArrayInput && (
               <div className="mb-4 text-left">
-                <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                <div dangerouslySetInnerHTML={{ __html: sections.find(s => s.id === currentArraySectionId)!.questions[0].fields![currentFieldIndex].question }} className="inline-block p-3 rounded-lg  text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
 
                 </div>
               </div>
@@ -774,7 +778,7 @@ export default function ChatPage() {
             {!inArrayInput && currentQuestionIndex < allQuestions.length &&
               !chatMessages.some(msg => msg.type === "question" && msg.content === currentQuestion?.question) && (
                 <div className="mb-4 text-left">
-                  <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg bg-[#F3F3F3] text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
+                  <div dangerouslySetInnerHTML={{ __html: currentQuestion?.question }} className="inline-block p-3 rounded-lg  text-black rounded-bl-none max-w-[80%] sm:max-w-[60%]">
                   </div>
                 </div>
               )}
@@ -788,8 +792,6 @@ export default function ChatPage() {
             )}
 
             <div ref={chatEndRef} />
-          </div> : <div className="flex-1 bg-[#F3F3F3] bg-cover bg-no-repeat shrink-0 bg-center rounded-lg shadow-md p-4 overflow-y-auto mb-2 max-h-[calc(100vh-200px)]">
-            <p className="text-black font-bold text-xl">Assessment Report</p>
           </div>
         }
 
@@ -797,11 +799,7 @@ export default function ChatPage() {
         {
           !IsDrawerOpened ? <div className="sticky bottom-0 bg-transparent flex items-center gap-2 m-2">
             {
-              IsReportAvailable ? <div className="flex justify-center items-center w-full">
-                <button className="text-black">
-                  Show Jobs button
-                </button>
-              </div> : renderInputField()
+              renderInputField()
             }
 
           </div> : <div className="flex w-full justify-between shadow-md border-0 rounded-full bg-white">

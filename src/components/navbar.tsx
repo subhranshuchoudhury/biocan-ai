@@ -277,14 +277,6 @@ const Navbar: React.FC<{
                     {/* Drawer Menu Items */}
                     <div className="flex-1 p-4 space-y-2">
                         <a
-                            href="/contact-us"
-                            className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-200 rounded"
-                            onClick={handleToggleDrawer}
-                        >
-                            <FaEnvelope size={16} />
-                            Contact Us
-                        </a>
-                        <a
                             href="/terms"
                             className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-200 rounded"
                             onClick={handleToggleDrawer}
@@ -300,16 +292,7 @@ const Navbar: React.FC<{
                             <FaLock size={16} />
                             Privacy Policy
                         </a>
-                        <button
-                            onClick={() => {
-                                handleLogout();
-                                handleToggleDrawer();
-                            }}
-                            className="flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-200 rounded w-full text-left hover:cursor-pointer"
-                        >
-                            <FaSignOutAlt size={16} />
-                            LogOut
-                        </button>
+
                     </div>
                 </div>
 

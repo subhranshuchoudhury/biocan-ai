@@ -1,0 +1,30 @@
+.select__control {
+    background-color: #f9fafb !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    padding: 2px !important;
+}
+
+.select__single-value {
+    color: #1f2937 !important;
+}
+
+.select__menu {
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="email"] {
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 8px;
+    color: #1f2937;
+}
+
+input:disabled {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
