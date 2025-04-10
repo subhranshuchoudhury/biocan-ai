@@ -56,8 +56,8 @@ const SignInPage = () => {
         )}
         <button
           onClick={login}
-          disabled={isLoading || loading}
-          className={`flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black hover:cursor-pointer transition-opacity ${isLoading || loading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+          disabled={isLoading || loading || user?.uid}
+          className={`flex w-[310px] items-center justify-center gap-2 rounded bg-white px-4 py-2 font-semibold text-black hover:cursor-pointer transition-opacity ${isLoading || loading || user?.uid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
             }`}
         >
           <FcGoogle size={28} />
